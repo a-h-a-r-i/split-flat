@@ -1235,8 +1235,8 @@ function AppInner() {
       {/* Main Content Canvas */}
       <main className={`flex-1 min-h-0 flex flex-col w-full max-w-[1280px] mx-auto ${
         activeTab === 'chats'
-          ? 'px-0 sm:px-4 md:px-6 pt-[56px] md:pt-[60px] pb-[64px] md:pb-0 overflow-hidden'
-          : 'px-3 sm:px-5 md:px-6 pt-[56px] md:pt-[60px] pb-[80px] md:pb-6 overflow-y-auto'
+          ? 'px-0 sm:px-4 md:px-6 pt-[60px] md:pt-[64px] pb-[72px] md:pb-0 overflow-hidden'
+          : 'px-3 sm:px-5 md:px-6 pt-[60px] md:pt-[64px] pb-[88px] md:pb-6 overflow-y-auto'
       }`}>
         {/* Top Room Balance Bar: Rendered only on Home tab */}
         {activeTab === 'home' && (

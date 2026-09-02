@@ -244,29 +244,29 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         </AnimatePresence>
 
         {/* BOTTOM NAVIGATION BAR — mobile only, desktop uses TopAppBar tabs */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 w-full z-40 bg-white/98 backdrop-blur-xl border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] flex justify-around items-center h-[64px] px-1">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 w-full z-40 bg-white/98 backdrop-blur-xl border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] flex justify-around items-center h-[72px] px-1 pb-safe">
           {/* 1. Home Tab */}
           <button
             id="nav-home-btn"
             onClick={() => onTabChange('home')}
-            className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full cursor-pointer active:scale-95 transition-all ${
-              activeTab === 'home' ? 'text-slate-900' : 'text-slate-400'
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full cursor-pointer active:scale-95 transition-all ${
+              activeTab === 'home' ? 'text-teal-700' : 'text-slate-400'
             }`}
           >
-            <LayoutGrid className={`w-[22px] h-[22px] ${activeTab === 'home' ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
-            <span className={`text-[10px] tracking-tight ${activeTab === 'home' ? 'font-bold' : 'font-medium'}`}>Home</span>
+            <LayoutGrid className={`w-[24px] h-[24px] ${activeTab === 'home' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+            <span className={`text-[11px] tracking-tight ${activeTab === 'home' ? 'font-bold' : 'font-medium'}`}>Home</span>
           </button>
 
           {/* 2. Ledger (Expenses) Tab */}
           <button
             id="nav-expenses-btn"
             onClick={() => onTabChange('expenses')}
-            className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full cursor-pointer active:scale-95 transition-all ${
-              activeTab === 'expenses' ? 'text-slate-900' : 'text-slate-400'
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full cursor-pointer active:scale-95 transition-all ${
+              activeTab === 'expenses' ? 'text-teal-700' : 'text-slate-400'
             }`}
           >
-            <ReceiptText className={`w-[22px] h-[22px] ${activeTab === 'expenses' ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
-            <span className={`text-[10px] tracking-tight ${activeTab === 'expenses' ? 'font-bold' : 'font-medium'}`}>Ledger</span>
+            <ReceiptText className={`w-[24px] h-[24px] ${activeTab === 'expenses' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+            <span className={`text-[11px] tracking-tight ${activeTab === 'expenses' ? 'font-bold' : 'font-medium'}`}>Ledger</span>
           </button>
 
           {/* 3. Center FAB */}
@@ -275,18 +275,18 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
               id="mobile-speed-dial-fab"
               aria-label={isOpen ? 'Close menu' : 'Open quick actions'}
               onClick={() => setIsOpen(!isOpen)}
-              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-[3px] border-white transition-all active:scale-90 cursor-pointer ${
+              className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg border-[3px] border-white transition-all active:scale-90 cursor-pointer ${
                 isOpen ? 'bg-slate-950 shadow-slate-900/40' : 'bg-slate-900 hover:bg-slate-800 shadow-slate-900/30'
               }`}
             >
               <AnimatePresence mode="wait" initial={false}>
                 {isOpen ? (
                   <motion.div key="close-icon" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                    <X className="w-5 h-5 text-white stroke-[2.6]" />
+                    <X className="w-6 h-6 text-white stroke-[2.6]" />
                   </motion.div>
                 ) : (
                   <motion.div key="plus-icon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
-                    <Plus className="w-5 h-5 text-white stroke-[2.6]" />
+                    <Plus className="w-6 h-6 text-white stroke-[2.6]" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -297,29 +297,29 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
           <button
             id="nav-chats-btn"
             onClick={() => onTabChange('chats')}
-            className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full cursor-pointer active:scale-95 transition-all relative ${
-              activeTab === 'chats' ? 'text-slate-900' : 'text-slate-400'
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full cursor-pointer active:scale-95 transition-all relative ${
+              activeTab === 'chats' ? 'text-teal-700' : 'text-slate-400'
             }`}
           >
             <div className="relative">
-              <MessageSquare className={`w-[22px] h-[22px] ${activeTab === 'chats' ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
+              <MessageSquare className={`w-[24px] h-[24px] ${activeTab === 'chats' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
               {unreadMessagesCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-teal-600 rounded-full border-2 border-white" />
               )}
             </div>
-            <span className={`text-[10px] tracking-tight ${activeTab === 'chats' ? 'font-bold' : 'font-medium'}`}>Chats</span>
+            <span className={`text-[11px] tracking-tight ${activeTab === 'chats' ? 'font-bold' : 'font-medium'}`}>Chats</span>
           </button>
 
           {/* 5. Menu Tab */}
           <button
             id="nav-more-btn"
             onClick={() => onTabChange('more')}
-            className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full cursor-pointer active:scale-95 transition-all ${
-              activeTab === 'more' ? 'text-slate-900' : 'text-slate-400'
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full cursor-pointer active:scale-95 transition-all ${
+              activeTab === 'more' ? 'text-teal-700' : 'text-slate-400'
             }`}
           >
-            <Menu className={`w-[22px] h-[22px] ${activeTab === 'more' ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
-            <span className={`text-[10px] tracking-tight ${activeTab === 'more' ? 'font-bold' : 'font-medium'}`}>Menu</span>
+            <Menu className={`w-[24px] h-[24px] ${activeTab === 'more' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+            <span className={`text-[11px] tracking-tight ${activeTab === 'more' ? 'font-bold' : 'font-medium'}`}>Menu</span>
           </button>
         </nav>
       </div>

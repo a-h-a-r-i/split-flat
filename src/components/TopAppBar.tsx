@@ -57,7 +57,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 w-full z-40 bg-white border-b border-slate-200/80 shadow-sm">
-      <div className="h-[56px] md:h-[60px] max-w-[1280px] mx-auto px-3 md:px-6 flex items-center gap-2 md:gap-4">
+      <div className="h-[60px] md:h-[64px] max-w-[1280px] mx-auto px-3 md:px-6 flex items-center gap-2 md:gap-4">
 
         {/* ── LEFT: Brand + flat switcher ── */}
         <div className="flex items-center gap-2 shrink-0">

@@ -41,7 +41,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   onOpenSendNotification, onOpenSettleModal, onMarkSeen, onUpdateTyping,
 }) => {
   const [activeRecipientId, setActiveRecipientId] = useState('group');
-  const [threadOpened, setThreadOpened] = useState(false); // true only after user clicks a thread
+  const [threadOpened, setThreadOpened] = useState(() => window.innerWidth >= 768);
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [emojiPickerFor, setEmojiPickerFor] = useState<string | null>(null);
@@ -303,12 +303,12 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
         )}
       </div>
 
-      <div className="px-3 py-2 border-b border-slate-100 shrink-0">
+      <div className="px-3 py-2.5 border-b border-slate-100 shrink-0">
         <div className="relative">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search messages…"
-            className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-100 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all" />
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-100 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all" />
         </div>
       </div>
 
@@ -642,11 +642,11 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
       </div>
 
       {/* Quick replies */}
-      <div className="px-3 py-1.5 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide shrink-0">Quick:</span>
+      <div className="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide shrink-0">Quick:</span>
         {(activeRecipientId === 'group' ? groupQuickReplies : directQuickReplies).map((r, i) => (
           <button key={i} onClick={() => send(undefined, r)}
-            className="whitespace-nowrap px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium border border-slate-200 cursor-pointer shrink-0 active:scale-95 transition-all">{r}</button>
+            className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[12px] font-medium border border-slate-200 cursor-pointer shrink-0 active:scale-95 transition-all">{r}</button>
         ))}
       </div>
 
@@ -655,16 +655,16 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
         <div className="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
           {['👍','❤️','👏','💰','💸','😂','🔥','🙌','⚡','🎉','🤝','🍕','🛒','🧹','☕','🥂'].map((em) => (
             <button key={em} onClick={() => { setInputText((p) => p + em); textareaRef.current?.focus(); }}
-              className="text-xl hover:scale-125 transition-transform cursor-pointer p-1 rounded-lg hover:bg-slate-100">{em}</button>
+              className="text-[22px] hover:scale-125 transition-transform cursor-pointer p-1 rounded-lg hover:bg-slate-100">{em}</button>
           ))}
         </div>
       )}
 
       {/* Composer */}
-      <form onSubmit={send} className="px-3 py-2.5 bg-white border-t border-slate-200 flex items-end gap-2 shrink-0">
+      <form onSubmit={send} className="px-3 py-3 bg-white border-t border-slate-200 flex items-end gap-2 shrink-0">
         <button type="button" onClick={() => setEmojiDrawerOpen((p) => !p)}
-          className={`p-2 rounded-full transition-colors cursor-pointer shrink-0 ${emojiDrawerOpen ? 'bg-slate-200 text-slate-700' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'}`}>
-          <span className="text-xl leading-none">😊</span>
+          className={`p-2.5 rounded-full transition-colors cursor-pointer shrink-0 ${emojiDrawerOpen ? 'bg-slate-200 text-slate-700' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'}`}>
+          <span className="text-[22px] leading-none">😊</span>
         </button>
         <textarea
           ref={textareaRef}
@@ -679,11 +679,11 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
           onKeyDown={handleKeyDown}
           onBlur={handleTypingStop}
           placeholder={activeRecipientId === 'group' ? 'Message Flat 402…' : `Message ${activeChatUser?.name || 'roommate'}…`}
-          className="flex-1 resize-none overflow-hidden px-4 py-2.5 rounded-full bg-slate-100 border border-slate-200 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/40 focus:bg-white transition-all leading-snug"
-          style={{ minHeight: '40px', maxHeight: '120px' }}
+          className="flex-1 resize-none overflow-hidden px-4 py-3 rounded-full bg-slate-100 border border-slate-200 text-slate-900 text-[14px] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/40 focus:bg-white transition-all leading-snug"
+          style={{ minHeight: '46px', maxHeight: '120px' }}
         />
         <button type="submit" disabled={!inputText.trim()}
-          className="w-10 h-10 rounded-full bg-[#005c4b] hover:bg-[#00483b] disabled:bg-slate-300 text-white flex items-center justify-center transition-all active:scale-90 cursor-pointer shrink-0 shadow-sm">
+          className="w-11 h-11 rounded-full bg-[#005c4b] hover:bg-[#00483b] disabled:bg-slate-300 text-white flex items-center justify-center transition-all active:scale-90 cursor-pointer shrink-0 shadow-sm">
           <Send className="w-4 h-4" />
         </button>
       </form>
