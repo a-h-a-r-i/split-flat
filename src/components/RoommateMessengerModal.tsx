@@ -51,8 +51,9 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
   // 'group' or specific userId ('u1', 'u2', 'u3', 'u4')
   const [activeRecipientId, setActiveRecipientId] = useState<string>('group');
   const [inputText, setInputText] = useState('');
-  const [showEmojiPickerFor, setShowEmojiPickerFor] = useState<string | null>(null);
   const [reactionMap, setReactionMap] = useState<Record<string, Record<string, string[]>>>({});
+  const [contextMenu, setContextMenu] = useState<{ msgId: string; x: number; y: number } | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -154,20 +155,30 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
       const currentMsgReactions = prev[msgId] || {};
       const currentList = currentMsgReactions[emoji] || [];
       const hasReacted = currentList.includes(currentUser.name);
-
       const newList = hasReacted
         ? currentList.filter((name) => name !== currentUser.name)
         : [...currentList, currentUser.name];
-
-      return {
-        ...prev,
-        [msgId]: {
-          ...currentMsgReactions,
-          [emoji]: newList,
-        },
-      };
+      return { ...prev, [msgId]: { ...currentMsgReactions, [emoji]: newList } };
     });
-    setShowEmojiPickerFor(null);
+    setContextMenu(null);
+  };
+
+  const handleLongPressStart = (e: React.TouchEvent | React.MouseEvent, msgId: string) => {
+    const touch = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
+    const x = touch.clientX;
+    const y = touch.clientY;
+    longPressTimer.current = setTimeout(() => {
+      setContextMenu({ msgId, x, y });
+    }, 500);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+  };
+
+  const handleCopyMessage = (text: string) => {
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setContextMenu(null);
   };
 
   const getRoleBadge = (role: UserRole) => {
@@ -408,42 +419,47 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 bg-slate-50/40">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 bg-slate-50/40" onClick={() => setContextMenu(null)}>
             {currentThreadMessages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
                 <MessageSquare className="w-10 h-10 text-slate-300 stroke-[1.5]" />
                 <p className="text-[14px] font-medium text-slate-600">No messages yet in this conversation</p>
-                <p className="text-[12px] text-slate-400 max-w-xs">
-                  Say hello or send a quick nudge to get the discussion started!
-                </p>
+                <p className="text-[12px] text-slate-400 max-w-xs">Say hello or send a quick nudge to get the discussion started!</p>
               </div>
             ) : (
               currentThreadMessages.map((msg) => {
                 const isSentByMe = msg.senderId === currentUser.id;
                 const sender = users.find((u) => u.id === msg.senderId);
-                const reactions = { ...(msg.reactions || {}), ...(reactionMap[msg.id] || {}) };
+                // Merge DB reactions with local reaction map
+                const mergedReactions: Record<string, string[]> = {};
+                const dbReactions = (msg.reactions || {}) as Record<string, string[]>;
+                const localReactions = reactionMap[msg.id] || {};
+                const allEmojis = new Set([...Object.keys(dbReactions), ...Object.keys(localReactions)]);
+                allEmojis.forEach((emoji) => {
+                  const dbList = Array.isArray(dbReactions[emoji]) ? dbReactions[emoji] : [];
+                  const localList = Array.isArray(localReactions[emoji]) ? localReactions[emoji] : [];
+                  const merged = Array.from(new Set([...dbList, ...localList]));
+                  if (merged.length > 0) mergedReactions[emoji] = merged;
+                });
 
                 return (
-                  <div
-                    key={msg.id}
-                    className={`flex flex-col ${isSentByMe ? 'items-end' : 'items-start'} group`}
-                  >
-                    {/* Sender Label (in group chat) */}
+                  <div key={msg.id} className={`flex flex-col ${isSentByMe ? 'items-end' : 'items-start'}`}>
+                    {/* Sender label in group chat */}
                     {!isSentByMe && activeRecipientId === 'group' && (
                       <div className="flex items-center gap-1.5 mb-1 ml-1 text-[11px] text-slate-600 font-bold">
-                        <img 
-                          src={sender?.avatar || msg.senderAvatar} 
-                          alt={msg.senderName} 
-                          className="w-4 h-4 rounded-full object-cover" 
-                        />
+                        <img src={sender?.avatar || msg.senderAvatar} alt={msg.senderName} className="w-4 h-4 rounded-full object-cover" />
                         <span>{msg.senderName}</span>
                         {sender && getRoleBadge(sender.role)}
                       </div>
                     )}
 
-                    {/* Message Bubble Card */}
+                    {/* Bubble with long-press */}
                     <div
-                      className={`relative max-w-[85%] sm:max-w-md p-3 sm:p-3.5 rounded-2xl text-[13px] shadow-2xs ${
+                      onTouchStart={(e) => handleLongPressStart(e, msg.id)}
+                      onTouchEnd={handleLongPressEnd}
+                      onTouchMove={handleLongPressEnd}
+                      onContextMenu={(e) => { e.preventDefault(); setContextMenu({ msgId: msg.id, x: e.clientX, y: e.clientY }); }}
+                      className={`relative max-w-[85%] sm:max-w-md p-3 rounded-2xl text-[13px] shadow-2xs select-none cursor-pointer active:scale-[0.98] transition-transform ${
                         isSentByMe
                           ? 'bg-slate-900 text-white rounded-tr-xs'
                           : msg.type === 'announcement'
@@ -453,76 +469,101 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
                           : 'bg-white border border-slate-200/90 text-slate-900 rounded-tl-xs'
                       }`}
                     >
-                      {/* Special Types Header */}
                       {msg.type === 'announcement' && (
                         <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold text-amber-800 mb-1">
                           <Crown className="w-3 h-3 text-amber-600" /> Host Announcement
                         </div>
                       )}
-
                       {msg.type === 'payment_reminder' && (
                         <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold text-emerald-800 mb-1">
                           <Wallet className="w-3 h-3 text-emerald-600" /> Settlement Reminder
                         </div>
                       )}
-
                       <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-
-                      {/* Embedded Amount Badge */}
                       {msg.amount && (
                         <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/10 font-mono font-bold text-[12px]">
-                          <span>Amount:</span>
-                          <span>{formatCurrency(msg.amount)}</span>
+                          <span>Amount:</span><span>{formatCurrency(msg.amount)}</span>
                         </div>
                       )}
-
-                      {/* Timestamp & Seen Tick */}
-                      <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] font-mono ${isSentByMe ? 'text-slate-400' : 'text-slate-400'}`}>
+                      <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-mono text-slate-400">
                         <span>{msg.timestamp}</span>
                         {isSentByMe && <CheckCheck className="w-3 h-3 text-emerald-400" />}
                       </div>
                     </div>
 
-                    {/* Reactions Display */}
-                    {Object.entries(reactions as Record<string, string[]>).some(([_, users]) => Array.isArray(users) && users.length > 0) && (
-                      <div className="flex items-center gap-1 mt-1 ml-1 flex-wrap">
-                        {Object.entries(reactions as Record<string, string[]>).map(([emoji, userList]) => {
-                          if (!Array.isArray(userList) || userList.length === 0) return null;
-                          return (
-                            <button
-                              key={emoji}
-                              onClick={() => handleToggleReaction(msg.id, emoji)}
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white border border-slate-200 text-[11px] shadow-2xs hover:bg-slate-50 transition-colors"
-                              title={userList.join(', ')}
-                            >
-                              <span>{emoji}</span>
-                              <span className="text-[10px] font-bold text-slate-600 font-mono">
-                                {userList.length}
-                              </span>
-                            </button>
-                          );
-                        })}
+                    {/* Reactions row — always rendered when there are reactions */}
+                    {Object.keys(mergedReactions).length > 0 && (
+                      <div className="flex items-center gap-1 mt-1 flex-wrap">
+                        {Object.entries(mergedReactions).map(([emoji, userList]) => (
+                          <button
+                            key={emoji}
+                            onClick={() => handleToggleReaction(msg.id, emoji)}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] border transition-colors ${
+                              userList.includes(currentUser.name)
+                                ? 'bg-slate-900 text-white border-slate-900'
+                                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                            }`}
+                            title={userList.join(', ')}
+                          >
+                            <span>{emoji}</span>
+                            <span className="text-[10px] font-bold font-mono">{userList.length}</span>
+                          </button>
+                        ))}
                       </div>
                     )}
-
-                    {/* Quick Reaction Button on Hover */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-0.5 px-1">
-                      {['👍', '❤️', '💸', '🔥'].map((emoji) => (
-                        <button
-                          key={emoji}
-                          onClick={() => handleToggleReaction(msg.id, emoji)}
-                          className="text-[12px] hover:scale-125 transition-transform p-0.5 cursor-pointer"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 );
               })
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Context Menu (long-press / right-click) */}
+          {contextMenu && (() => {
+            const msg = currentThreadMessages.find((m) => m.id === contextMenu.msgId);
+            if (!msg) return null;
+            const isMine = msg.senderId === currentUser.id;
+            // Position menu so it doesn't go off screen
+            const menuW = 180;
+            const menuH = 220;
+            const left = Math.min(contextMenu.x, window.innerWidth - menuW - 8);
+            const top = Math.min(contextMenu.y, window.innerHeight - menuH - 8);
+            return (
+              <div
+                className="fixed z-[100] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden w-44"
+                style={{ left, top }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Quick react row */}
+                <div className="flex items-center justify-around px-2 py-2 border-b border-slate-100">
+                  {['👍', '❤️', '😂', '💸', '🔥', '👏'].map((emoji) => (
+                    <button key={emoji} onClick={() => handleToggleReaction(contextMenu.msgId, emoji)}
+                      className="text-[18px] hover:scale-125 transition-transform p-0.5 cursor-pointer">
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => handleCopyMessage(msg.text)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
+                  📋 Copy
+                </button>
+                <button onClick={() => { handleToggleReaction(contextMenu.msgId, '👍'); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
+                  👍 React
+                </button>
+                {isMine && (
+                  <button onClick={() => { setContextMenu(null); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border-t border-slate-100">
+                    🗑️ Delete
+                  </button>
+                )}
+                <button onClick={() => setContextMenu(null)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-slate-400 hover:bg-slate-50 transition-colors cursor-pointer border-t border-slate-100">
+                  ✕ Cancel
+                </button>
+              </div>
+            );
+          })()}
 
           {/* Chat Input Bar */}
           <form onSubmit={handleSend} className="p-3 sm:p-4 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
