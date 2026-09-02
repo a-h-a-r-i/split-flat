@@ -47,13 +47,16 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-body {
+html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: #f8fafc;
   color: #0f172a;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  touch-action: pan-y;
+  overscroll-behavior: none;
 }
 
 .font-mono-numbers {
