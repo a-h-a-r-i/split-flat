@@ -56,26 +56,25 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 w-full z-40 bg-white border-b border-slate-200 shadow-sm">
-      {/* ── Single row, 52px tall on mobile / 56px on desktop ── */}
+    <header className="fixed top-0 left-0 right-0 w-full z-40 bg-white border-b border-slate-200/80 shadow-sm">
       <div className="h-[56px] md:h-[60px] max-w-[1280px] mx-auto px-3 md:px-6 flex items-center gap-2 md:gap-4">
 
         {/* ── LEFT: Brand + flat switcher ── */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Logo dot + name */}
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-100 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-teal-600 ring-2 ring-teal-100 shrink-0" />
             <span className="text-[15px] md:text-[17px] font-black text-slate-900 tracking-tight">EquityHub</span>
           </div>
 
           {/* Flat switcher pill */}
           <button
             onClick={onOpenSwitchFlat}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer max-w-[90px] md:max-w-[140px]"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 transition-colors cursor-pointer max-w-[90px] md:max-w-[140px]"
           >
-            <Building className="w-3 h-3 shrink-0 text-slate-500" />
+            <Building className="w-3 h-3 shrink-0 text-teal-600" />
             <span className="truncate">{groupName}</span>
-            <ChevronDown className="w-3 h-3 shrink-0 text-slate-400" />
+            <ChevronDown className="w-3 h-3 shrink-0 text-teal-400" />
           </button>
         </div>
 
