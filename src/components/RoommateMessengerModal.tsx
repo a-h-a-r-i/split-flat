@@ -1,10 +1,83 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   X, Send, MessageSquare, Users, Crown, Shield,
-  CheckCheck, Wallet, Bell, Copy, Trash2, Trash, Reply, Smile
+  CheckCheck, Wallet, Bell, Copy, Trash2, Trash, Reply
 } from 'lucide-react';
 import { User, ChatMessage, UserRole, DebtTransfer } from '../types';
 import { formatCurrency } from '../utils/calculations';
+
+// ── Long-press bubble wrapper ─────────────────────────────────────────────────
+interface BubbleProps {
+  onLongPress: (x: number, y: number) => void;
+  onContextMenu: (x: number, y: number) => void;
+  className?: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}
+
+const Bubble: React.FC<BubbleProps> = ({ onLongPress, onContextMenu, className, style, children }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fired = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      fired.current = false;
+      const t = e.touches[0];
+      startPos.current = { x: t.clientX, y: t.clientY };
+      timer.current = setTimeout(() => {
+        fired.current = true;
+        if (navigator.vibrate) navigator.vibrate(40);
+        onLongPress(t.clientX, t.clientY);
+      }, 500);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - startPos.current.x);
+      const dy = Math.abs(t.clientY - startPos.current.y);
+      // Cancel if user scrolls more than 8px
+      if (dx > 8 || dy > 8) {
+        if (timer.current) clearTimeout(timer.current);
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (timer.current) clearTimeout(timer.current);
+      // If long-press fired, swallow the tap so it doesn't dismiss the menu
+      if (fired.current) {
+        e.preventDefault();
+        fired.current = false;
+      }
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: false });
+
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [onLongPress]);
+
+  return (
+    <div
+      ref={ref}
+      style={style}
+      className={className}
+      onContextMenu={(e) => { e.preventDefault(); onContextMenu(e.clientX, e.clientY); }}
+    >
+      {children}
+    </div>
+  );
+};
 
 interface RoommateMessengerModalProps {
   isOpen: boolean;
@@ -40,14 +113,11 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressActive = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, activeRecipientId]);
 
-  // Close context menu on scroll
   const handleScroll = useCallback(() => setContextMenu(null), []);
 
   if (!isOpen) return null;
@@ -148,39 +218,6 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
     setDeletedForEveryone((prev) => new Set([...prev, msgId]));
     setContextMenu(null);
   };
-
-  // Long-press via non-passive touchstart listener attached by ref callback
-  const attachLongPress = useCallback((el: HTMLDivElement | null, msgId: string, x0: number, y0: number) => {
-    if (!el) return;
-    const onTouchStart = (e: TouchEvent) => {
-      // Only prevent default if we're going to handle it — don't block scroll
-      longPressActive.current = false;
-      const t = e.touches[0];
-      longPressTimer.current = setTimeout(() => {
-        longPressActive.current = true;
-        if (navigator.vibrate) navigator.vibrate(40);
-        setContextMenu({ msgId, x: t.clientX, y: t.clientY });
-      }, 500);
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      if (longPressTimer.current) clearTimeout(longPressTimer.current);
-      if (longPressActive.current) {
-        e.preventDefault(); // only block tap if long-press fired
-        longPressActive.current = false;
-      }
-    };
-    const onTouchMove = () => {
-      if (longPressTimer.current) clearTimeout(longPressTimer.current);
-    };
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchend', onTouchEnd, { passive: false });
-    el.addEventListener('touchmove', onTouchMove, { passive: true });
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchend', onTouchEnd);
-      el.removeEventListener('touchmove', onTouchMove);
-    };
-  }, []);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -381,9 +418,9 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
                     )}
 
                     {/* Bubble */}
-                    <div
-                      ref={(el) => { if (el) attachLongPress(el, msg.id, 0, 0); }}
-                      onContextMenu={(e) => { e.preventDefault(); setContextMenu({ msgId: msg.id, x: e.clientX, y: e.clientY }); }}
+                    <Bubble
+                      onLongPress={(x, y) => setContextMenu({ msgId: msg.id, x, y })}
+                      onContextMenu={(x, y) => setContextMenu({ msgId: msg.id, x, y })}
                       style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' } as React.CSSProperties}
                       className={`relative max-w-[82%] sm:max-w-md p-3 rounded-2xl text-[13px] shadow-sm
                         ${contextMenu?.msgId === msg.id ? 'scale-[0.97] brightness-90' : ''}
@@ -420,7 +457,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
                         <span>{msg.timestamp}</span>
                         {isMine && <CheckCheck className="w-3 h-3 text-emerald-400" />}
                       </div>
-                    </div>
+                    </Bubble>
 
                     {/* Reactions */}
                     {Object.keys(mergedReactions).length > 0 && (
