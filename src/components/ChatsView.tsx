@@ -58,8 +58,13 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   const typingTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTypingRef  = useRef(false);
 
-  // ── Mark messages as seen when thread is visible ────────────────────────
+  // ── Mark messages as seen ONLY when the thread is actually open ─────────
   useEffect(() => {
+    // On mobile, only mark seen if the thread panel is open
+    // On desktop, the chat area is always visible when chats tab is active
+    const isMobile = window.innerWidth < 768;
+    if (isMobile && !mobileThreadOpen) return;
+
     const unseenIds = messages
       .filter((m) => {
         if (m.senderId === currentUser.id) return false;
@@ -72,7 +77,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
       })
       .map((m) => m.id);
     if (unseenIds.length > 0) onMarkSeen?.(unseenIds);
-  }, [messages, activeRecipientId, currentUser.id, onMarkSeen]);
+  }, [messages, activeRecipientId, mobileThreadOpen, currentUser.id, onMarkSeen]);
 
   // ── Scroll ───────────────────────────────────────────────────────────────
   const scrollToBottom = useCallback((force = false) => {
