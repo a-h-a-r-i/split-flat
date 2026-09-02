@@ -41,6 +41,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   onOpenSendNotification, onOpenSettleModal, onMarkSeen, onUpdateTyping,
 }) => {
   const [activeRecipientId, setActiveRecipientId] = useState('group');
+  const [threadOpened, setThreadOpened] = useState(false); // true only after user clicks a thread
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [emojiPickerFor, setEmojiPickerFor] = useState<string | null>(null);
@@ -60,8 +61,9 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
 
   // ── Mark messages as seen ONLY when the thread is actually open ─────────
   useEffect(() => {
-    // On mobile, only mark seen if the thread panel is open
-    // On desktop, the chat area is always visible when chats tab is active
+    // Must have explicitly opened a thread (clicked it)
+    if (!threadOpened) return;
+    // On mobile, also need the thread panel to be open
     const isMobile = window.innerWidth < 768;
     if (isMobile && !mobileThreadOpen) return;
 
@@ -77,7 +79,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
       })
       .map((m) => m.id);
     if (unseenIds.length > 0) onMarkSeen?.(unseenIds);
-  }, [messages, activeRecipientId, mobileThreadOpen, currentUser.id, onMarkSeen]);
+  }, [messages, activeRecipientId, mobileThreadOpen, threadOpened, currentUser.id, onMarkSeen]);
 
   // ── Scroll ───────────────────────────────────────────────────────────────
   const scrollToBottom = useCallback((force = false) => {
@@ -312,7 +314,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
 
       <div className="flex-1 overflow-y-auto">
         {/* Group */}
-        <button onClick={() => { setActiveRecipientId('group'); setMobileThreadOpen(true); }}
+        <button onClick={() => { setActiveRecipientId('group'); setMobileThreadOpen(true); setThreadOpened(true); }}
           className={`w-full px-4 py-3 flex items-center gap-3 text-left cursor-pointer border-l-[3px] transition-colors ${activeRecipientId === 'group' ? 'bg-slate-100 border-slate-900' : 'hover:bg-slate-50 border-transparent'}`}>
           <div className="relative shrink-0">
             <div className="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-sm"><Users className="w-5 h-5" /></div>
@@ -369,7 +371,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
           const isTypingNow = user.typingInThread === currentUser.id || (activeRecipientId === 'group' && user.typingInThread === 'group');
 
           return (
-            <button key={user.id} onClick={() => { setActiveRecipientId(user.id); setMobileThreadOpen(true); }}
+            <button key={user.id} onClick={() => { setActiveRecipientId(user.id); setMobileThreadOpen(true); setThreadOpened(true); }}
               className={`w-full px-4 py-3 flex items-center gap-3 text-left cursor-pointer border-l-[3px] transition-colors ${isActive ? 'bg-slate-100 border-indigo-600' : 'hover:bg-slate-50 border-transparent'}`}>
               <div className="relative shrink-0" onClick={(e) => { e.stopPropagation(); if (onOpenPhotoViewer) onOpenPhotoViewer(user); else if (onOpenMemberProfile) onOpenMemberProfile(user); }}>
                 <div className="w-11 h-11 rounded-full overflow-hidden border border-slate-200 cursor-pointer">
