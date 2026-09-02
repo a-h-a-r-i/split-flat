@@ -164,16 +164,23 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
   };
 
   const handleLongPressStart = (e: React.TouchEvent | React.MouseEvent, msgId: string) => {
+    // Prevent native text selection / callout on mobile
+    e.preventDefault();
     const touch = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
     const x = touch.clientX;
     const y = touch.clientY;
     longPressTimer.current = setTimeout(() => {
+      // Vibrate on supported devices for tactile feedback
+      if (navigator.vibrate) navigator.vibrate(40);
       setContextMenu({ msgId, x, y });
-    }, 500);
+    }, 450);
   };
 
   const handleLongPressEnd = () => {
-    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   const handleCopyMessage = (text: string) => {
@@ -459,7 +466,8 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
                       onTouchEnd={handleLongPressEnd}
                       onTouchMove={handleLongPressEnd}
                       onContextMenu={(e) => { e.preventDefault(); setContextMenu({ msgId: msg.id, x: e.clientX, y: e.clientY }); }}
-                      className={`relative max-w-[85%] sm:max-w-md p-3 rounded-2xl text-[13px] shadow-2xs select-none cursor-pointer active:scale-[0.98] transition-transform ${
+                      style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' } as React.CSSProperties}
+                      className={`chat-bubble relative max-w-[85%] sm:max-w-md p-3 rounded-2xl text-[13px] shadow-2xs cursor-pointer active:scale-[0.98] transition-transform ${
                         isSentByMe
                           ? 'bg-slate-900 text-white rounded-tr-xs'
                           : msg.type === 'announcement'

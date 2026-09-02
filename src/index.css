@@ -80,6 +80,14 @@ html, body {
   background: #94a3b8;
 }
 
+/* Prevent iOS text selection/callout on long-press in chat bubbles */
+.chat-bubble {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+
 /* Hide scrollbar for clean mobile horizontal scroll */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -88,4 +96,3 @@ html, body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-
