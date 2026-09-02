@@ -202,7 +202,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               Deposited: {formatCurrency(myRoomBal.depositedApproved)} · Spent Share: -{formatCurrency(myRoomBal.spentShare)}
             </p>
           </div>
-          <p className="text-[15px] font-bold font-mono-numbers text-teal-900">{formatCurrency(myRoomBal.availableRoomBalance)}</p>
+          <div className="text-right">
+            <p className={`text-[15px] font-bold font-mono-numbers ${myRoomBal.availableRoomBalance < 0 ? 'text-rose-600' : 'text-teal-900'}`}>
+              {formatCurrency(myRoomBal.availableRoomBalance)}
+            </p>
+            {myRoomBal.depositedApproved === 0 && myRoomBal.spentShare > 0 && (
+              <p className="text-[10px] text-amber-600 font-semibold mt-0.5">Not deposited yet</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -317,29 +324,77 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {userSummaries.length > 1 && (
         <div className="app-card p-4 rounded-2xl">
           <p className="text-[13px] font-bold text-slate-900 mb-3">Roommate Balances</p>
-          <div className="space-y-2">
-            {userSummaries.filter((u) => u.userId !== currentUser.id).map((u) => (
-              <div key={u.userId} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0">
-                    <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0f766e&color=fff`; }} />
+          <div className="space-y-3">
+            {userSummaries.filter((u) => u.userId !== currentUser.id).map((u) => {
+              const theirRoomBal = roomFundSummary.userRoomBalances[u.userId];
+              const deposited = theirRoomBal?.depositedApproved || 0;
+              const pending = theirRoomBal?.depositedPending || 0;
+              return (
+                <div key={u.userId} className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 shrink-0">
+                      <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0f766e&color=fff`; }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-slate-900 truncate">{u.name}</p>
+                      <p className="text-[10px] text-slate-400">
+                        {u.role === 'host' ? '👑 Host' : u.role === 'co-host' ? '🛡 Co-Host' : 'Member'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[13px] font-semibold text-slate-900">{u.name}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">
-                      {u.role === 'host' ? '👑 Host' : u.role === 'co-host' ? '🛡 Co-Host' : 'Member'}
-                    </p>
+
+                  {/* Right: room fund deposit + personal balance */}
+                  <div className="text-right shrink-0 space-y-0.5">
+                    {/* Room fund deposited */}
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="text-[10px] text-slate-400">Pool:</span>
+                      {deposited > 0 ? (
+                        <span className="text-[12px] font-bold font-mono-numbers text-teal-700">
+                          +{formatCurrency(deposited)}
+                        </span>
+                      ) : pending > 0 ? (
+                        <span className="text-[11px] font-semibold text-amber-600">
+                          ₹{pending.toLocaleString('en-IN')} pending
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 font-mono">not deposited</span>
+                      )}
+                    </div>
+                    {/* Personal expense balance */}
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="text-[10px] text-slate-400">Balance:</span>
+                      <span className={`text-[12px] font-bold font-mono-numbers ${
+                        u.netBalance > 0 ? 'text-teal-700' : u.netBalance < 0 ? 'text-rose-600' : 'text-slate-400'
+                      }`}>
+                        {u.netBalance > 0 ? '+' : ''}{formatExactCurrency(u.netBalance)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`text-[13px] font-bold font-mono-numbers ${u.netBalance > 0 ? 'text-teal-700' : u.netBalance < 0 ? 'text-rose-600' : 'text-slate-500'}`}>
-                    {u.netBalance > 0 ? '+' : ''}{formatExactCurrency(u.netBalance)}
-                  </p>
-                  <p className="text-[10px] text-slate-400">{u.netBalance > 0 ? 'is owed' : u.netBalance < 0 ? 'owes' : 'settled'}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+
+          {/* Also show current user's own room deposit for self-awareness */}
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-[11px] text-slate-500 font-semibold">Your Room Deposit</p>
+            <div className="flex items-center gap-1.5">
+              {myContribution.approved > 0 ? (
+                <span className="text-[13px] font-bold font-mono-numbers text-teal-700">
+                  +{formatCurrency(myContribution.approved)} ✓
+                </span>
+              ) : myContribution.pending > 0 ? (
+                <span className="text-[12px] font-semibold text-amber-600">
+                  ₹{myContribution.pending.toLocaleString('en-IN')} pending
+                </span>
+              ) : (
+                <button onClick={onOpenDepositModal}
+                  className="px-2.5 py-1 rounded-lg bg-teal-700 text-white text-[11px] font-semibold cursor-pointer hover:bg-teal-800 transition-colors">
+                  + Deposit now
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
