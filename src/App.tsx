@@ -1516,7 +1516,18 @@ function AppInner() {
         onMarkAllAsRead={() => {
           setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         }}
+        pendingDeposits={deposits
+          .filter((d) => d.status === 'pending_approval')
+          .map((d) => ({ id: d.id, userName: d.userName, amount: d.amount, paymentMethod: d.paymentMethod }))}
+        onApproveDeposit={(id) => { handleApproveDeposit(id); }}
+        onRejectDeposit={(id) => { handleRejectDeposit(id); }}
         onSelectNotification={(notif) => {
+          // Approval requests → close bell, go to home where pending section lives
+          if (notif.type === 'approval_request') {
+            setIsNotificationsOpen(false);
+            setActiveTab('home');
+            return;
+          }
           if (notif.actionExpenseId) {
             const exp = expenses.find((e) => e.id === notif.actionExpenseId);
             if (exp) {
