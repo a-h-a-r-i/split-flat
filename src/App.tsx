@@ -138,8 +138,10 @@ function AppInner() {
   // Keep a ref of the active user ID so Firestore listeners always use latest value
   const activeUserIdRef = useRef<string | null>(getStoredAuthUserId());
 
-  // Auth state — always start unauthenticated, require explicit login
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  // Auth state — restore from stored session if still valid (6-month persistence)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return getStoredAuthUserId() !== null;
+  });
 
   // All app state starts empty — populated by Firestore real-time subscriptions
   const [users, setUsers]             = useState<User[]>([]);
