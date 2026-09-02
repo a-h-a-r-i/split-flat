@@ -190,13 +190,13 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-4xl h-[90vh] sm:h-[85vh] bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        
-        {/* LEFT SIDEBAR: Threads & Contacts list */}
-        <div className="w-full md:w-80 bg-slate-50/90 border-r border-slate-200 flex flex-col shrink-0 h-44 md:h-full">
-          {/* Header */}
-          <div className="p-3.5 sm:p-4 border-b border-slate-200/80 flex items-center justify-between bg-white">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white md:items-center md:justify-center md:p-4 md:bg-slate-900/60 md:backdrop-blur-sm">
+      <div className="w-full h-full md:max-w-4xl md:h-[85vh] bg-white md:rounded-3xl md:border md:border-slate-200 md:shadow-2xl overflow-hidden flex flex-col md:flex-row">
+
+        {/* LEFT SIDEBAR: on mobile = horizontal avatar strip, on desktop = full sidebar */}
+        <div className="w-full md:w-80 bg-slate-50/90 md:border-r border-slate-200 flex flex-col shrink-0 md:h-full">
+          {/* Header — desktop only */}
+          <div className="hidden md:flex p-3.5 sm:p-4 border-b border-slate-200/80 items-center justify-between bg-white">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
                 <MessageSquare className="w-4 h-4" />
@@ -219,15 +219,50 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
             )}
           </div>
 
-          {/* Threads List */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-1 divide-y md:divide-y-0 divide-slate-100 flex md:flex-col overflow-x-auto md:overflow-x-hidden">
-            {/* 1. Flat 402 Group Thread */}
+          {/* Mobile: horizontal avatar row */}
+          <div className="md:hidden flex items-center gap-3 px-3 py-2 border-b border-slate-200 bg-white overflow-x-auto no-scrollbar shrink-0">
+            {/* Group */}
             <button
               onClick={() => setActiveRecipientId('group')}
-              className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all cursor-pointer shrink-0 md:shrink ${
+              className="flex flex-col items-center gap-1 shrink-0"
+            >
+              <div className={`relative w-11 h-11 rounded-2xl flex items-center justify-center shadow-xs border ${
                 activeRecipientId === 'group'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-white md:bg-transparent text-slate-800 hover:bg-slate-100/80'
+                  ? 'bg-slate-900 text-white border-slate-900'
+                  : 'bg-slate-100 text-slate-700 border-slate-200'
+              }`}>
+                <Users className="w-5 h-5" />
+                <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+              </div>
+              <span className={`text-[10px] font-bold truncate max-w-[44px] ${activeRecipientId === 'group' ? 'text-slate-900' : 'text-slate-500'}`}>
+                Group
+              </span>
+            </button>
+            {/* Individual users */}
+            {users.filter((u) => u.id !== currentUser.id).map((u) => {
+              const isSelected = activeRecipientId === u.id;
+              return (
+                <button key={u.id} onClick={() => setActiveRecipientId(u.id)} className="flex flex-col items-center gap-1 shrink-0">
+                  <div className={`relative w-11 h-11 rounded-full overflow-hidden border-2 ${isSelected ? 'border-slate-900' : 'border-slate-200'}`}>
+                    <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'; }}
+                    />
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+                  </div>
+                  <span className={`text-[10px] font-bold truncate max-w-[44px] ${isSelected ? 'text-slate-900' : 'text-slate-500'}`}>
+                    {u.name.split(' ')[0]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop: full threads list */}
+          <div className="hidden md:flex flex-1 overflow-y-auto p-2 space-y-1 flex-col">
+            <button
+              onClick={() => setActiveRecipientId('group')}
+              className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all cursor-pointer ${
+                activeRecipientId === 'group' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-800 hover:bg-slate-100/80'
               }`}
             >
               <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-700 flex items-center justify-center text-white shrink-0 shadow-xs border border-slate-600">
@@ -236,123 +271,91 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className={`text-[13px] font-bold truncate ${activeRecipientId === 'group' ? 'text-white' : 'text-slate-900'}`}>
-                    Flat 402 Group
-                  </span>
-                  <span className={`text-[10px] font-mono ${activeRecipientId === 'group' ? 'text-slate-300' : 'text-slate-400'}`}>
-                    {users.length} members
-                  </span>
+                  <span className={`text-[13px] font-bold truncate ${activeRecipientId === 'group' ? 'text-white' : 'text-slate-900'}`}>Flat 402 Group</span>
+                  <span className={`text-[10px] font-mono ${activeRecipientId === 'group' ? 'text-slate-300' : 'text-slate-400'}`}>{users.length} members</span>
                 </div>
-                <p className={`text-[11px] truncate mt-0.5 ${activeRecipientId === 'group' ? 'text-slate-300' : 'text-slate-500'}`}>
-                  Shared fund, chores & updates
-                </p>
+                <p className={`text-[11px] truncate mt-0.5 ${activeRecipientId === 'group' ? 'text-slate-300' : 'text-slate-500'}`}>Shared fund, chores & updates</p>
               </div>
             </button>
-
-            {/* Section Divider */}
-            <div className="hidden md:block pt-3 pb-1 px-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">
-                1-on-1 Direct Chats
-              </span>
+            <div className="pt-3 pb-1 px-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">1-on-1 Direct Chats</span>
             </div>
-
-            {/* 2. Roommates Direct Chats */}
-            {users
-              .filter((u) => u.id !== currentUser.id)
-              .map((u) => {
-                const isSelected = activeRecipientId === u.id;
-                return (
-                  <button
-                    key={u.id}
-                    onClick={() => setActiveRecipientId(u.id)}
-                    className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all cursor-pointer shrink-0 md:shrink ${
-                      isSelected
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'bg-white md:bg-transparent text-slate-800 hover:bg-slate-100/80'
-                    }`}
-                  >
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-slate-300 shrink-0">
-                      <img 
-                        src={u.avatar} 
-                        alt={u.name} 
-                        className="w-full h-full object-cover" 
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
-                        }}
-                      />
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+            {users.filter((u) => u.id !== currentUser.id).map((u) => {
+              const isSelected = activeRecipientId === u.id;
+              return (
+                <button key={u.id} onClick={() => setActiveRecipientId(u.id)}
+                  className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all cursor-pointer ${
+                    isSelected ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-800 hover:bg-slate-100/80'
+                  }`}
+                >
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden border border-slate-300 shrink-0">
+                    <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'; }}
+                    />
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[13px] font-bold truncate ${isSelected ? 'text-white' : 'text-slate-900'}`}>{u.name}</span>
+                      {getRoleBadge(u.role)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-[13px] font-bold truncate ${isSelected ? 'text-white' : 'text-slate-900'}`}>
-                          {u.name}
-                        </span>
-                        {getRoleBadge(u.role)}
-                      </div>
-                      <p className={`text-[11px] truncate mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                        {u.upiId || u.phone || 'Tap to chat'}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
+                    <p className={`text-[11px] truncate mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>{u.upiId || u.phone || 'Tap to chat'}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* RIGHT AREA: Active Chat Conversation Stream */}
-        <div className="flex-1 flex flex-col bg-white overflow-hidden h-full">
+        <div className="flex-1 flex flex-col bg-white overflow-hidden min-h-0">
           {/* Chat Header */}
-          <div className="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-white shadow-2xs shrink-0">
+          <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-white shadow-2xs shrink-0">
             <div className="flex items-center gap-3 min-w-0">
               {activeRecipientId === 'group' ? (
-                <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0">
-                  <Users className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0">
+                  <Users className="w-4 h-4" />
                 </div>
               ) : (
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 shrink-0">
+                <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 shrink-0">
                   <img src={activeChatUser?.avatar} alt={activeChatUser?.name} className="w-full h-full object-cover" />
                 </div>
               )}
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-[15px] font-bold text-slate-900 truncate">
+                  <h4 className="text-[14px] font-bold text-slate-900 truncate">
                     {activeRecipientId === 'group' ? 'Flat 402 Roommates' : activeChatUser?.name}
                   </h4>
                   {activeChatUser && getRoleBadge(activeChatUser.role)}
                 </div>
-                <p className="text-[11px] text-slate-500 truncate">
-                  {activeRecipientId === 'group' 
-                    ? `Public thread with all ${users.length} flatmates` 
-                    : `Direct 1-on-1 private chat • ${activeChatUser?.phone || activeChatUser?.email}`}
-                </p>
+                <p className="text-[10px] text-emerald-500 font-semibold">Online</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {activeRecipientId !== 'group' && debtWithActiveUser && (
                 <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-800 text-[11px] font-mono font-bold border border-slate-200">
-                  <span>Balance:</span>
                   <span className={debtWithActiveUser.from === currentUser.id ? 'text-rose-600' : 'text-emerald-600'}>
                     {debtWithActiveUser.from === currentUser.id ? `You owe ₹${debtWithActiveUser.amount}` : `Owes you ₹${debtWithActiveUser.amount}`}
                   </span>
                 </div>
               )}
-
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
+              {onOpenSendNotification && (
+                <button onClick={onOpenSendNotification} title="Broadcast Push Alert"
+                  className="md:hidden p-1.5 rounded-xl bg-slate-100 text-slate-700 transition-colors cursor-pointer border border-slate-200">
+                  <Bell className="w-4 h-4" />
+                </button>
+              )}
+              <button onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Quick Nudges Bar (Above messages) */}
-          <div className="px-3 sm:px-4 py-2 border-b border-slate-100 bg-slate-50/60 flex items-center gap-1.5 overflow-x-auto text-[11px] font-medium shrink-0">
-            <span className="text-slate-400 text-[10px] font-mono uppercase font-bold shrink-0">
-              Quick Nudges:
-            </span>
+          {/* Quick Nudges Bar */}
+          <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px] font-medium shrink-0">
+            <span className="text-slate-400 text-[10px] font-mono uppercase font-bold shrink-0">Quick:</span>
             {activeRecipientId === 'group' ? (
               <>
                 <button
@@ -405,7 +408,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-slate-50/40">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/40 min-h-0">
             {currentThreadMessages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
                 <MessageSquare className="w-10 h-10 text-slate-300 stroke-[1.5]" />
