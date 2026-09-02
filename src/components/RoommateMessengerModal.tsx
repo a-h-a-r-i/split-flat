@@ -10,12 +10,13 @@ import { formatCurrency } from '../utils/calculations';
 interface BubbleProps {
   onLongPress: (x: number, y: number) => void;
   onContextMenu: (x: number, y: number) => void;
+  onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
 }
 
-const Bubble: React.FC<BubbleProps> = ({ onLongPress, onContextMenu, className, style, children }) => {
+const Bubble: React.FC<BubbleProps> = ({ onLongPress, onContextMenu, onClick, className, style, children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fired = useRef(false);
@@ -40,7 +41,6 @@ const Bubble: React.FC<BubbleProps> = ({ onLongPress, onContextMenu, className, 
       const t = e.touches[0];
       const dx = Math.abs(t.clientX - startPos.current.x);
       const dy = Math.abs(t.clientY - startPos.current.y);
-      // Cancel if user scrolls more than 8px
       if (dx > 8 || dy > 8) {
         if (timer.current) clearTimeout(timer.current);
       }
@@ -48,7 +48,6 @@ const Bubble: React.FC<BubbleProps> = ({ onLongPress, onContextMenu, className, 
 
     const onTouchEnd = (e: TouchEvent) => {
       if (timer.current) clearTimeout(timer.current);
-      // If long-press fired, swallow the tap so it doesn't dismiss the menu
       if (fired.current) {
         e.preventDefault();
         fired.current = false;
@@ -72,6 +71,7 @@ const Bubble: React.FC<BubbleProps> = ({ onLongPress, onContextMenu, className, 
       ref={ref}
       style={style}
       className={className}
+      onClick={onClick}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu(e.clientX, e.clientY); }}
     >
       {children}
@@ -417,47 +417,77 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
                       </div>
                     )}
 
-                    {/* Bubble */}
-                    <Bubble
-                      onLongPress={(x, y) => setContextMenu({ msgId: msg.id, x, y })}
-                      onContextMenu={(x, y) => setContextMenu({ msgId: msg.id, x, y })}
-                      style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' } as React.CSSProperties}
-                      className={`relative max-w-[82%] sm:max-w-md p-3 rounded-2xl text-[13px] shadow-sm
-                        ${contextMenu?.msgId === msg.id ? 'scale-[0.97] brightness-90' : ''}
-                        transition-all duration-150
-                        ${isDeleted ? 'opacity-50 italic' : ''}
-                        ${isMine
-                          ? 'bg-slate-900 text-white rounded-tr-sm'
-                          : msg.type === 'announcement'
-                          ? 'bg-amber-50 border border-amber-200 text-slate-900 rounded-tl-sm'
-                          : msg.type === 'payment_reminder'
-                          ? 'bg-emerald-50 border border-emerald-200 text-slate-900 rounded-tl-sm'
-                          : 'bg-white border border-slate-200 text-slate-900 rounded-tl-sm'
-                        }`}
-                    >
-                      {msg.type === 'announcement' && !isDeleted && (
-                        <div className="flex items-center gap-1 text-[10px] font-mono uppercase font-bold text-amber-800 mb-1">
-                          <Crown className="w-3 h-3 text-amber-600" /> Host Announcement
+                    {/* Bubble + inline action buttons row */}
+                    <div className={`flex items-center gap-1.5 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+                      {/* Bubble — single tap toggles actions */}
+                      <Bubble
+                        onLongPress={(x, y) => setContextMenu({ msgId: msg.id, x, y })}
+                        onContextMenu={(x, y) => setContextMenu({ msgId: msg.id, x, y })}
+                        style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' } as React.CSSProperties}
+                        className={`relative max-w-[82%] sm:max-w-md p-3 rounded-2xl text-[13px] shadow-sm transition-all duration-150 cursor-pointer
+                          ${contextMenu?.msgId === msg.id ? 'scale-[0.97] brightness-90' : ''}
+                          ${isDeleted ? 'opacity-50 italic' : ''}
+                          ${isMine
+                            ? 'bg-slate-900 text-white rounded-tr-sm'
+                            : msg.type === 'announcement'
+                            ? 'bg-amber-50 border border-amber-200 text-slate-900 rounded-tl-sm'
+                            : msg.type === 'payment_reminder'
+                            ? 'bg-emerald-50 border border-emerald-200 text-slate-900 rounded-tl-sm'
+                            : 'bg-white border border-slate-200 text-slate-900 rounded-tl-sm'
+                          }`}
+                        onClick={() => setContextMenu(contextMenu?.msgId === msg.id ? null : { msgId: msg.id, x: 0, y: 0 })}
+                      >
+                        {msg.type === 'announcement' && !isDeleted && (
+                          <div className="flex items-center gap-1 text-[10px] font-mono uppercase font-bold text-amber-800 mb-1">
+                            <Crown className="w-3 h-3 text-amber-600" /> Host Announcement
+                          </div>
+                        )}
+                        {msg.type === 'payment_reminder' && !isDeleted && (
+                          <div className="flex items-center gap-1 text-[10px] font-mono uppercase font-bold text-emerald-800 mb-1">
+                            <Wallet className="w-3 h-3 text-emerald-600" /> Settlement Reminder
+                          </div>
+                        )}
+                        <p className="leading-relaxed whitespace-pre-wrap">
+                          {isDeleted ? '🚫 This message was deleted' : msg.text}
+                        </p>
+                        {msg.amount && !isDeleted && (
+                          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/10 font-mono font-bold text-[12px]">
+                            Amount: {formatCurrency(msg.amount)}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-mono opacity-60">
+                          <span>{msg.timestamp}</span>
+                          {isMine && <CheckCheck className="w-3 h-3 text-emerald-400" />}
+                        </div>
+                      </Bubble>
+
+                      {/* Inline action buttons — shown when this message is tapped */}
+                      {contextMenu?.msgId === msg.id && !isDeleted && (
+                        <div className="flex items-center gap-1 animate-fadeIn">
+                          {/* Quick emoji react row */}
+                          {QUICK_EMOJIS.map((emoji) => (
+                            <button key={emoji} onClick={(e) => { e.stopPropagation(); handleToggleReaction(msg.id, emoji); }}
+                              className={`w-8 h-8 rounded-full border shadow-sm flex items-center justify-center text-[15px] transition-colors
+                                ${(reactionMap[msg.id]?.[emoji] || []).includes(currentUser.name)
+                                  ? 'bg-slate-900 border-slate-900'
+                                  : 'bg-white border-slate-200 hover:bg-slate-50'
+                                }`}>
+                              {emoji}
+                            </button>
+                          ))}
+                          {/* Reply */}
+                          <button onClick={(e) => { e.stopPropagation(); setReplyTo(msg); setContextMenu(null); }}
+                            className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors">
+                            <Reply className="w-4 h-4" />
+                          </button>
+                          {/* More */}
+                          <button onClick={(e) => { e.stopPropagation(); setContextMenu({ msgId: msg.id, x: e.clientX, y: e.clientY }); }}
+                            className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors">
+                            <span className="text-[16px] leading-none font-bold text-slate-500">⋮</span>
+                          </button>
                         </div>
                       )}
-                      {msg.type === 'payment_reminder' && !isDeleted && (
-                        <div className="flex items-center gap-1 text-[10px] font-mono uppercase font-bold text-emerald-800 mb-1">
-                          <Wallet className="w-3 h-3 text-emerald-600" /> Settlement Reminder
-                        </div>
-                      )}
-                      <p className="leading-relaxed whitespace-pre-wrap">
-                        {isDeleted ? '🚫 This message was deleted' : msg.text}
-                      </p>
-                      {msg.amount && !isDeleted && (
-                        <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/10 font-mono font-bold text-[12px]">
-                          Amount: {formatCurrency(msg.amount)}
-                        </div>
-                      )}
-                      <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-mono opacity-60">
-                        <span>{msg.timestamp}</span>
-                        {isMine && <CheckCheck className="w-3 h-3 text-emerald-400" />}
-                      </div>
-                    </Bubble>
+                    </div>
 
                     {/* Reactions */}
                     {Object.keys(mergedReactions).length > 0 && (
@@ -479,8 +509,8 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* ── Context menu ── */}
-          {contextMenu && (() => {
+          {/* ── Context menu (only shown when triggered from ⋮ with real coords) ── */}
+          {contextMenu && contextMenu.x > 0 && contextMenu.y > 0 && (() => {
             const msg = currentThreadMessages.find((m) => m.id === contextMenu.msgId);
             if (!msg) return null;
             const isMine = msg.senderId === currentUser.id;
