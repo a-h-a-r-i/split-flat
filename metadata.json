@@ -1,0 +1,6 @@
+{
+  "name": "EquityHub - Expense Splitter & Ledger",
+  "description": "A precision group expense sharing, bill ledger, and balance settlement application featuring instant filtering, recurring bills, debt simplification, and detailed transaction breakdowns.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

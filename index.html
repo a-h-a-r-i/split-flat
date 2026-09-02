@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EquityHub - Expense Splitter & Ledger</title>
+    <meta name="description" content="A precision group expense sharing, bill ledger, and balance settlement application featuring instant filtering, recurring bills, debt simplification, and detailed transaction breakdowns." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  </head>
+  <body class="antialiased">
+    <script>
+      // Clear stale auth if no flat is stored
+      if (!localStorage.getItem('equityhub_active_flat')) {
+        document.cookie = 'equityhub_auth_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        localStorage.removeItem('equityhub_auth_session');
+      }
+    </script>
+    <div id="root" class="min-h-screen bg-slate-50"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
