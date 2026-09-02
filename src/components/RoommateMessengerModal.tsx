@@ -191,7 +191,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white md:items-center md:justify-center md:p-4 md:bg-slate-900/60 md:backdrop-blur-sm">
-      <div className="w-full h-full md:max-w-4xl md:h-[85vh] bg-white md:rounded-3xl md:border md:border-slate-200 md:shadow-2xl overflow-hidden flex flex-col md:flex-row">
+      <div className="w-full h-[100dvh] md:h-[85vh] md:max-w-4xl bg-white md:rounded-3xl md:border md:border-slate-200 md:shadow-2xl flex flex-col md:flex-row overflow-hidden">
 
         {/* LEFT SIDEBAR: on mobile = horizontal avatar strip, on desktop = full sidebar */}
         <div className="w-full md:w-80 bg-slate-50/90 md:border-r border-slate-200 flex flex-col shrink-0 md:h-full">
@@ -308,7 +308,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
         </div>
 
         {/* RIGHT AREA: Active Chat Conversation Stream */}
-        <div className="flex-1 flex flex-col bg-white overflow-hidden min-h-0">
+        <div className="flex-1 min-h-0 flex flex-col bg-white overflow-hidden">
           {/* Chat Header */}
           <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-white shadow-2xs shrink-0">
             <div className="flex items-center gap-3 min-w-0">
@@ -408,7 +408,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/40 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 bg-slate-50/40">
             {currentThreadMessages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
                 <MessageSquare className="w-10 h-10 text-slate-300 stroke-[1.5]" />
