@@ -308,7 +308,19 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-sm text-slate-900">Flat 402 Group</span>
-              <span className="text-[10px] text-slate-400">{[...messages].reverse().find((m) => m.recipientId === 'group')?.timestamp || ''}</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[10px] text-slate-400">{[...messages].reverse().find((m) => m.recipientId === 'group')?.timestamp || ''}</span>
+                {(() => {
+                  const groupUnread = messages.filter(
+                    (m) => m.recipientId === 'group' && m.senderId !== currentUser.id && !m.seenBy?.includes(currentUser.id)
+                  ).length;
+                  return groupUnread > 0 ? (
+                    <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
+                      {groupUnread > 9 ? '9+' : groupUnread}
+                    </span>
+                  ) : null;
+                })()}
+              </div>
             </div>
             <p className="text-[11px] text-slate-500 truncate mt-0.5">
               {[...messages].reverse().find((m) => m.recipientId === 'group')?.text || '📢 Shared notices & chores'}
@@ -320,7 +332,20 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
           Direct Messages
         </div>
 
-        {users.filter((u) => u.id !== currentUser.id).map((user) => {
+        {users.filter((u) => u.id !== currentUser.id).sort((a, b) => {
+          // Sort by latest message timestamp — most recent at top
+          const lastA = [...messages].reverse().find(
+            (m) => (m.senderId === currentUser.id && m.recipientId === a.id) ||
+                   (m.senderId === a.id && m.recipientId === currentUser.id)
+          );
+          const lastB = [...messages].reverse().find(
+            (m) => (m.senderId === currentUser.id && m.recipientId === b.id) ||
+                   (m.senderId === b.id && m.recipientId === currentUser.id)
+          );
+          const timeA = lastA?.createdAt || '0';
+          const timeB = lastB?.createdAt || '0';
+          return timeB.localeCompare(timeA);
+        }).map((user) => {
           const isActive    = activeRecipientId === user.id;
           const lastDm      = [...messages].reverse().find(
             (m) => (m.senderId === currentUser.id && m.recipientId === user.id) ||
