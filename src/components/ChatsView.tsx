@@ -79,14 +79,22 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
     const el = containerRef.current;
     if (!el) return;
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
-    if (force || nearBottom) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (force || nearBottom) bottomRef.current?.scrollIntoView({ behavior: 'instant' });
   }, []);
 
+  // Force scroll to bottom when thread changes or view opens
+  useEffect(() => {
+    // Small timeout so the DOM has rendered the messages first
+    const t = setTimeout(() => scrollToBottom(true), 50);
+    return () => clearTimeout(t);
+  }, [activeRecipientId, mobileThreadOpen]);
+
+  // Scroll on new messages (smooth if already near bottom, force if new msg)
   useEffect(() => {
     const isNew = messages.length !== prevCount.current;
     prevCount.current = messages.length;
-    scrollToBottom(isNew);
-  }, [messages, activeRecipientId, mobileThreadOpen, scrollToBottom]);
+    if (isNew) scrollToBottom(true);
+  }, [messages, scrollToBottom]);
 
   // Auto-resize textarea
   const resizeTextarea = () => {
