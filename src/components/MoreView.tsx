@@ -198,7 +198,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-[1280px] mx-auto pt-3 pb-4 px-1">
+    <div className="flex flex-col gap-4 w-full max-w-[1280px] mx-auto pt-3 pb-4 px-1 overflow-x-hidden">
       {/* 0. Top Category Segment Filters — sticky so they stay visible while scrolling */}
       <div className="sticky top-0 z-10 overflow-x-auto no-scrollbar bg-[#eef2f0] pt-1 pb-2 -mx-1 px-1">
         <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-sm w-max min-w-full">
@@ -258,7 +258,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
       {/* 2. DEDICATED HOST & CO-HOST CONTROLS PANEL - ONLY for Host & Co-Host */}
       {isHostOrCoHost && (activeMenuTab === 'all' || activeMenuTab === 'host_hub') && (
-        <section className="p-5 sm:p-6 rounded-3xl bg-white border-2 border-amber-200/80 shadow-xs space-y-5">
+        <section className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border-2 border-amber-200/80 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
@@ -266,7 +266,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-[18px] font-bold text-slate-900 leading-tight">
+                  <h3 className="text-[15px] sm:text-[18px] font-bold text-slate-900 leading-tight">
                     Host & Co-Host Control Hub
                   </h3>
                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
@@ -290,7 +290,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
           </div>
 
           {/* Quick Admin Action Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {/* 1. Pending Approvals */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between space-y-2">
               <div className="flex items-center justify-between">
@@ -395,7 +395,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
             <h4 className="text-[13px] font-bold text-amber-950 flex items-center gap-2">
               <Shield className="w-4 h-4 text-amber-700" /> Member Role Controls (Host & Co-Host Action)
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {users.map((u) => (
                 <div
                   key={u.id}
@@ -457,7 +457,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-[16px] sm:text-[18px] font-bold text-slate-900 leading-tight">
+                <h3 className="text-[16px] sm:text-[15px] sm:text-[18px] font-bold text-slate-900 leading-tight">
                   Smart Debt Simplification
                 </h3>
                 <p className="text-[12px] sm:text-[13px] text-slate-500 mt-0.5">
@@ -507,7 +507,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-3 self-end sm:self-auto">
-                      <span className="font-mono text-[18px] font-bold text-slate-900 font-mono-numbers">
+                      <span className="font-mono text-[15px] sm:text-[18px] font-bold text-slate-900 font-mono-numbers">
                         {formatExactCurrency(t.amount)}
                       </span>
                       <button
@@ -535,7 +535,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
         <section className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <h3 className="text-[18px] font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="text-[15px] sm:text-[18px] font-bold text-slate-900 flex items-center gap-2">
                 <Users className="w-5 h-5 text-slate-700" /> Roommates & Access Control
               </h3>
               <p className="text-[13px] text-slate-500">
@@ -710,7 +710,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
             <Download className="w-4 h-4 text-slate-700" /> Account & Ledger Utilities
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <button
               onClick={handleExportCSV}
               className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition-colors cursor-pointer"
@@ -740,9 +740,9 @@ export const MoreView: React.FC<MoreViewProps> = ({
       {showSettleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
-            <h3 className="text-[18px] font-bold text-slate-900">Record Settlement</h3>
+            <h3 className="text-[15px] sm:text-[18px] font-bold text-slate-900">Record Settlement</h3>
             <form onSubmit={handleSettleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-mono text-slate-500 uppercase mb-1 font-semibold">
                     Who paid?
@@ -797,7 +797,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 <label className="block text-[11px] font-mono text-slate-500 uppercase mb-1 font-semibold">
                   Payment Method
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {(['UPI', 'Cash', 'Bank Transfer'] as const).map((m) => (
                     <button
                       key={m}
@@ -852,7 +852,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
       {showAddMemberModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
-            <h3 className="text-[18px] font-bold text-slate-900">Add Roommate Profile</h3>
+            <h3 className="text-[15px] sm:text-[18px] font-bold text-slate-900">Add Roommate Profile</h3>
             <form onSubmit={handleAddMemberSubmit} className="space-y-4">
               <div>
                 <label className="block text-[11px] font-mono text-slate-500 uppercase mb-1 font-semibold">
@@ -886,7 +886,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 <label className="block text-[11px] font-mono text-slate-500 uppercase mb-1 font-semibold">
                   Role
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setNewMemberRole('member')}
