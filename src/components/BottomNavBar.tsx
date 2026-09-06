@@ -244,7 +244,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         </AnimatePresence>
 
         {/* BOTTOM NAVIGATION BAR — mobile only, desktop uses TopAppBar tabs */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 w-full z-40 bg-white/98 backdrop-blur-xl border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] flex justify-around items-center h-[72px] px-1 pb-safe">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 w-full z-40 bg-white/98 backdrop-blur-xl border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] flex justify-around items-center h-[72px] px-1 pb-safe">
           {/* 1. Home Tab */}
           <button
             id="nav-home-btn"

@@ -41,7 +41,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   onOpenSendNotification, onOpenSettleModal, onMarkSeen, onUpdateTyping,
 }) => {
   const [activeRecipientId, setActiveRecipientId] = useState('group');
-  const [threadOpened, setThreadOpened] = useState(() => window.innerWidth >= 768);
+  const [threadOpened, setThreadOpened] = useState(() => window.innerWidth >= 1024);
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [emojiPickerFor, setEmojiPickerFor] = useState<string | null>(null);
@@ -64,7 +64,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
     // Must have explicitly opened a thread (clicked it)
     if (!threadOpened) return;
     // On mobile, also need the thread panel to be open
-    const isMobile = window.innerWidth < 768;
+    const isMobile = window.innerWidth < 1024;
     if (isMobile && !mobileThreadOpen) return;
 
     const unseenIds = messages
@@ -290,7 +290,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
 
   // ── SIDEBAR ───────────────────────────────────────────────────────────────
   const sidebar = (
-    <div className={`flex flex-col bg-white border-r border-slate-200 h-full min-h-0 md:col-span-4 ${mobileThreadOpen ? 'hidden md:flex' : 'flex'}`}>
+    <div className={`flex flex-col bg-white border-r border-slate-200 h-full min-h-0 lg:col-span-4 ${mobileThreadOpen ? 'hidden lg:flex' : 'flex'}`}>
       <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4 text-emerald-400" />
@@ -417,11 +417,11 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
 
   // ── CHAT AREA ─────────────────────────────────────────────────────────────
   const chatArea = (
-    <div className={`flex flex-col bg-[#f0f2f5] h-full min-h-0 md:col-span-8 ${!mobileThreadOpen ? 'hidden md:flex' : 'flex'}`}>
+    <div className={`flex flex-col bg-[#f0f2f5] h-full min-h-0 lg:col-span-8 ${!mobileThreadOpen ? 'hidden lg:flex' : 'flex'}`}>
 
       {/* Header */}
       <div className="px-3 py-2.5 bg-white border-b border-slate-200 flex items-center gap-3 shrink-0 shadow-sm">
-        <button onClick={() => setMobileThreadOpen(false)} className="md:hidden p-1.5 -ml-1 rounded-full hover:bg-slate-100 text-slate-700 cursor-pointer shrink-0">
+        <button onClick={() => setMobileThreadOpen(false)} className="lg:hidden p-1.5 -ml-1 rounded-full hover:bg-slate-100 text-slate-700 cursor-pointer shrink-0">
           <ChevronLeft className="w-5 h-5" />
         </button>
 
@@ -696,7 +696,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   return (
     <div className="flex flex-col min-h-0 h-full w-full">
       {/* Chat panel — fills full remaining height */}
-      <div className="flex-1 min-h-0 bg-white md:rounded-2xl md:border border-slate-200 shadow-sm overflow-hidden flex flex-col md:grid md:grid-cols-12">
+      <div className="flex-1 min-h-0 bg-white lg:rounded-2xl lg:border border-slate-200 shadow-sm overflow-hidden flex flex-col lg:grid lg:grid-cols-12">
         {sidebar}
         {chatArea}
       </div>

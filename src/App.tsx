@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,7 +9,7 @@ import {
   ROOM_FUND_NAME 
 } from './data/initialData';
 
-// ─── Error Boundary ───────────────────────────────────────────────────────────
+// --- Error Boundary -----------------------------------------------------------
 class AppErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { error: Error | null }
@@ -125,7 +125,7 @@ import {
 } from './utils/calculations';
 
 function AppInner() {
-  // Flats state — all populated from Firestore
+  // Flats state � all populated from Firestore
   const [flats, setFlats]           = useState<FlatGroup[]>([]);
   const [activeFlatId, setActiveFlatId] = useState<string>(() => {
     // Try to restore from session storage
@@ -138,12 +138,12 @@ function AppInner() {
   // Keep a ref of the active user ID so Firestore listeners always use latest value
   const activeUserIdRef = useRef<string | null>(getStoredAuthUserId());
 
-  // Auth state — restore from stored session if still valid (6-month persistence)
+  // Auth state � restore from stored session if still valid (6-month persistence)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return getStoredAuthUserId() !== null;
   });
 
-  // All app state starts empty — populated by Firestore real-time subscriptions
+  // All app state starts empty � populated by Firestore real-time subscriptions
   const [users, setUsers]             = useState<User[]>([]);
   const [expenses, setExpenses]       = useState<Expense[]>([]);
   const [deposits, setDeposits]       = useState<RoomDeposit[]>([]);
@@ -495,7 +495,7 @@ function AppInner() {
     activeUserIdRef.current = userId;
     setStoredAuthSession(userId, normalizedEmail);
 
-    // Persist to Firestore in background — check for existing user first
+    // Persist to Firestore in background � check for existing user first
     ensureFirebaseAuthUser(normalizedEmail).then(() => {
       saveFlatToDB(newFlat).catch((err) => console.error('Save flat DB error:', err));
       // Only save user if not already exists with same email
@@ -505,7 +505,7 @@ function AppInner() {
       saveUserToDB(newHostUser).catch((err) => console.error('Save user DB error:', err));
     });
 
-    // Authenticate last — by now local state is ready
+    // Authenticate last � by now local state is ready
     setIsAuthenticated(true);
   };
 
@@ -543,11 +543,11 @@ function AppInner() {
       const result = handleLoginWithEmail(email, true);
       if (result.success) return { success: true, email };
       if (result.matchingFlats.length > 1) {
-        // Multiple flats — handled by LoginPage flat-selector
+        // Multiple flats � handled by LoginPage flat-selector
         return { success: false, email, error: 'multiple_flats' };
       }
 
-      // Email not in any flat — provision new user shell and ask to create a flat
+      // Email not in any flat � provision new user shell and ask to create a flat
       return { success: false, email, needsFlat: true };
     } catch (err: any) {
       console.error('Google sign-in error:', err);
@@ -704,7 +704,7 @@ function AppInner() {
       createdAt:    now.toISOString(),
       type:         msgData.type         || 'text',
       reactions:    msgData.reactions    || {},
-      // Only include amount/seenBy if defined — Firestore rejects undefined
+      // Only include amount/seenBy if defined � Firestore rejects undefined
       ...(msgData.amount  !== undefined ? { amount:  msgData.amount  } : {}),
       ...(msgData.seenBy  !== undefined ? { seenBy:  msgData.seenBy  } : {}),
     };
@@ -803,7 +803,7 @@ function AppInner() {
       const notif: AppNotification = {
         id: `notif-${Date.now()}`,
         title: 'Room Money Deposit Recorded',
-        message: `Host recorded deposit of ₹${newDeposit.amount} from ${newDeposit.userName} into Flat 402 common fund.`,
+        message: `Host recorded deposit of ?${newDeposit.amount} from ${newDeposit.userName} into Flat 402 common fund.`,
         timestamp: 'Just now',
         isRead: false,
         type: 'general',
@@ -814,7 +814,7 @@ function AppInner() {
       const notif: AppNotification = {
         id: `notif-${Date.now()}`,
         title: 'Room Money Handover Pending Host Approval',
-        message: `${currentUser.name} handed over ₹${newDeposit.amount} via ${newDeposit.paymentMethod}. Awaiting Host Harinadh to confirm receipt.`,
+        message: `${currentUser.name} handed over ?${newDeposit.amount} via ${newDeposit.paymentMethod}. Awaiting Host Harinadh to confirm receipt.`,
         timestamp: 'Just now',
         isRead: false,
         type: 'approval_request',
@@ -849,7 +849,7 @@ function AppInner() {
       const notif: AppNotification = {
         id: `notif-${Date.now()}`,
         title: 'Room Money Handover Approved!',
-        message: `Host ${currentUser.name} confirmed receipt of ₹${approvedDep.amount} from ${approvedDep.userName}. Added to Room Pool!`,
+        message: `Host ${currentUser.name} confirmed receipt of ?${approvedDep.amount} from ${approvedDep.userName}. Added to Room Pool!`,
         timestamp: 'Just now',
         isRead: false,
         type: 'approval_done',
@@ -872,7 +872,7 @@ function AppInner() {
       const notif: AppNotification = {
         id: `notif-${Date.now()}`,
         title: 'Room Money Handover Declined',
-        message: `Host declined handover proposal of ₹${rejectedDep.amount} from ${rejectedDep.userName}.`,
+        message: `Host declined handover proposal of ?${rejectedDep.amount} from ${rejectedDep.userName}.`,
         timestamp: 'Just now',
         isRead: false,
         type: 'general',
@@ -929,7 +929,7 @@ function AppInner() {
           {
             id: `notif-${Date.now()}`,
             title: isRoomFund ? 'Room Money Expense Added' : 'New Expense Added',
-            message: `${newExpense.paidByName} added "${newExpense.title}" for ₹${newExpense.amount}${isRoomFund ? ' (Deducted from Room Money)' : ''}`,
+            message: `${newExpense.paidByName} added "${newExpense.title}" for ?${newExpense.amount}${isRoomFund ? ' (Deducted from Room Money)' : ''}`,
             timestamp: 'Just now',
             isRead: false,
             type: 'expense',
@@ -944,8 +944,8 @@ function AppInner() {
             const perHead = Math.ceil(deficit / Math.max(1, users.length));
             notifsToAdd.push({
               id: `notif-def-auto-${Date.now()}`,
-              title: `⚠️ Room Money Deficit Alert: ₹${perHead.toLocaleString('en-IN')} Needed per Person`,
-              message: `With "${newExpense.title}" (₹${newExpense.amount}), Room Money is overspent by -₹${deficit.toLocaleString('en-IN')}. Each of the ${users.length} flatmates should hand over ₹${perHead.toLocaleString('en-IN')} to balance the pool.`,
+              title: `?? Room Money Deficit Alert: ?${perHead.toLocaleString('en-IN')} Needed per Person`,
+              message: `With "${newExpense.title}" (?${newExpense.amount}), Room Money is overspent by -?${deficit.toLocaleString('en-IN')}. Each of the ${users.length} flatmates should hand over ?${perHead.toLocaleString('en-IN')} to balance the pool.`,
               timestamp: 'Just now',
               isRead: false,
               type: 'general',
@@ -959,7 +959,7 @@ function AppInner() {
         const notif: AppNotification = {
           id: `notif-${Date.now()}`,
           title: `Pending Approval: ${currentUser.name} submitted an expense`,
-          message: `"${newExpense.title}" (₹${newExpense.amount}) was submitted. Awaiting Host verification.`,
+          message: `"${newExpense.title}" (?${newExpense.amount}) was submitted. Awaiting Host verification.`,
           timestamp: 'Just now',
           isRead: false,
           type: 'approval_request',
@@ -982,7 +982,7 @@ function AppInner() {
     if (call.active) {
       const notif: AppNotification = {
         id: `notif-${Date.now()}`,
-        title: `Room Collection Target: ₹${call.amountPerPerson.toLocaleString('en-IN')}/person`,
+        title: `Room Collection Target: ?${call.amountPerPerson.toLocaleString('en-IN')}/person`,
         message: `${currentUser.name} (Host) initiated collection for "${call.title}". Please hand over your deposit share.`,
         timestamp: 'Just now',
         isRead: false,
@@ -1031,8 +1031,8 @@ function AppInner() {
       id: `notif-${Date.now()}`,
       title: reimburseFromRoomFund ? 'Reimbursement Approved & Paid from Room Pool!' : 'Expense Proposal Approved!',
       message: reimburseFromRoomFund
-        ? `Host ${currentUser.name} approved reimbursement of ₹${targetExp.amount} for "${targetExp.title}" directly from the Room Money common pool.`
-        : `Host ${currentUser.name} approved "${targetExp.title}" (₹${targetExp.amount}). Recorded in group balances.`,
+        ? `Host ${currentUser.name} approved reimbursement of ?${targetExp.amount} for "${targetExp.title}" directly from the Room Money common pool.`
+        : `Host ${currentUser.name} approved "${targetExp.title}" (?${targetExp.amount}). Recorded in group balances.`,
       timestamp: 'Just now',
       isRead: false,
       type: 'approval_done',
@@ -1121,7 +1121,7 @@ function AppInner() {
     const notif: AppNotification = {
       id: `notif-${Date.now()}`,
       title: 'New Shared Bill Added',
-      message: `"${newBill.title}" (₹${newBill.amount}) due on ${newBill.dueDate}`,
+      message: `"${newBill.title}" (?${newBill.amount}) due on ${newBill.dueDate}`,
       timestamp: 'Just now',
       isRead: false,
       type: 'bill',
@@ -1164,7 +1164,7 @@ function AppInner() {
     const notif: AppNotification = {
       id: `notif-${Date.now()}`,
       title: 'Settlement Payment Recorded',
-      message: `${fromName} paid ₹${newSettlement.amount} to ${toName} via ${newSettlement.paymentMethod}`,
+      message: `${fromName} paid ?${newSettlement.amount} to ${toName} via ${newSettlement.paymentMethod}`,
       timestamp: 'Just now',
       isRead: false,
       type: 'settlement',
@@ -1181,8 +1181,8 @@ function AppInner() {
   const handleRequestPoolContribution = (deficitAmount: number, perPersonShare: number) => {
     const newNotif: AppNotification = {
       id: `notif-deficit-${Date.now()}`,
-      title: `⚠️ Room Money Deficit Alert: ₹${perPersonShare.toLocaleString('en-IN')} Needed per Member`,
-      message: `Flat 402 Room Money is in deficit by -₹${deficitAmount.toLocaleString('en-IN')}. Split among all ${users.length} flatmates is ₹${perPersonShare.toLocaleString('en-IN')} each. Please hand over your share to replenish the common pool.`,
+      title: `?? Room Money Deficit Alert: ?${perPersonShare.toLocaleString('en-IN')} Needed per Member`,
+      message: `Flat 402 Room Money is in deficit by -?${deficitAmount.toLocaleString('en-IN')}. Split among all ${users.length} flatmates is ?${perPersonShare.toLocaleString('en-IN')} each. Please hand over your share to replenish the common pool.`,
       timestamp: 'Just now',
       isRead: false,
       type: 'general',
@@ -1235,8 +1235,8 @@ function AppInner() {
       {/* Main Content Canvas */}
       <main className={`flex-1 min-h-0 flex flex-col w-full max-w-[1280px] mx-auto ${
         activeTab === 'chats'
-          ? 'px-0 sm:px-4 md:px-6 pt-[60px] md:pt-[64px] pb-[72px] md:pb-0 overflow-hidden'
-          : 'px-3 sm:px-5 md:px-6 pt-[60px] md:pt-[64px] pb-[88px] md:pb-6 overflow-y-auto'
+          ? 'px-0 sm:px-4 lg:px-6 pt-[60px] lg:pt-[64px] pb-[72px] lg:pb-0 overflow-hidden'
+          : 'px-3 sm:px-5 lg:px-6 pt-[60px] lg:pt-[64px] pb-[88px] lg:pb-6 overflow-y-auto'
       }`}>
         {/* Top Room Balance Bar: Rendered only on Home tab */}
         {activeTab === 'home' && (
@@ -1522,7 +1522,7 @@ function AppInner() {
         onApproveDeposit={(id) => { handleApproveDeposit(id); }}
         onRejectDeposit={(id) => { handleRejectDeposit(id); }}
         onSelectNotification={(notif) => {
-          // Approval requests → close bell, go to home where pending section lives
+          // Approval requests ? close bell, go to home where pending section lives
           if (notif.type === 'approval_request') {
             setIsNotificationsOpen(false);
             setActiveTab('home');

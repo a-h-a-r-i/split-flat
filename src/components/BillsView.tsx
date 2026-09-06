@@ -66,7 +66,7 @@ export const BillsView: React.FC<BillsViewProps> = ({
   const totalUnpaid = unpaidBills.reduce((acc, b) => acc + b.amount, 0);
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-[1280px] mx-auto pt-3 md:pt-4">
+    <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-[1280px] mx-auto pt-3 lg:pt-4">
       <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-xs flex flex-row justify-between items-center gap-3">
         <div className="min-w-0">
           <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-slate-500 font-semibold block">
@@ -96,7 +96,7 @@ export const BillsView: React.FC<BillsViewProps> = ({
           <Clock className="w-4 h-4 text-slate-700" /> Upcoming & Due Bills ({unpaidBills.length})
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {unpaidBills.map((bill) => (
             <div
               key={bill.id}

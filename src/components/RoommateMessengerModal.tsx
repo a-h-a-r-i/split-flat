@@ -238,14 +238,14 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white md:items-center md:justify-center md:p-4 md:bg-slate-900/60 md:backdrop-blur-sm"
+    <div className="fixed inset-0 z-50 flex flex-col bg-white lg:items-center lg:justify-center lg:p-4 lg:bg-slate-900/60 lg:backdrop-blur-sm"
       onClick={() => setContextMenu(null)}>
-      <div className="w-full h-[100dvh] md:h-[85vh] md:max-w-4xl bg-white md:rounded-3xl md:border md:border-slate-200 md:shadow-2xl flex flex-col md:flex-row overflow-hidden">
+      <div className="w-full h-[100dvh] lg:h-[85vh] lg:max-w-4xl bg-white lg:rounded-3xl lg:border lg:border-slate-200 lg:shadow-2xl flex flex-col lg:flex-row overflow-hidden">
 
         {/* ── LEFT: contact list ─────────────────────────────────────────── */}
-        <div className="w-full md:w-80 bg-slate-50/90 md:border-r border-slate-200 flex flex-col shrink-0 md:h-full">
+        <div className="w-full lg:w-80 bg-slate-50/90 lg:border-r border-slate-200 flex flex-col shrink-0 lg:h-full">
           {/* Desktop header */}
-          <div className="hidden md:flex p-3.5 border-b border-slate-200/80 items-center justify-between bg-white">
+          <div className="hidden lg:flex p-3.5 border-b border-slate-200/80 items-center justify-between bg-white">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center">
                 <MessageSquare className="w-4 h-4" />
@@ -263,7 +263,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
           </div>
 
           {/* Mobile: horizontal avatar strip */}
-          <div className="md:hidden flex items-center gap-3 px-3 py-2 border-b border-slate-200 bg-white overflow-x-auto no-scrollbar shrink-0">
+          <div className="lg:hidden flex items-center gap-3 px-3 py-2 border-b border-slate-200 bg-white overflow-x-auto no-scrollbar shrink-0">
             <button onClick={() => setActiveRecipientId('group')} className="flex flex-col items-center gap-1 shrink-0">
               <div className={`relative w-11 h-11 rounded-2xl flex items-center justify-center border ${activeRecipientId === 'group' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
                 <Users className="w-5 h-5" />
@@ -284,7 +284,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
           </div>
 
           {/* Desktop: full list */}
-          <div className="hidden md:flex flex-1 overflow-y-auto p-2 space-y-1 flex-col">
+          <div className="hidden lg:flex flex-1 overflow-y-auto p-2 space-y-1 flex-col">
             <button onClick={() => setActiveRecipientId('group')}
               className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all cursor-pointer ${activeRecipientId === 'group' ? 'bg-slate-900 text-white' : 'text-slate-800 hover:bg-slate-100/80'}`}>
               <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-700 flex items-center justify-center text-white shrink-0 border border-slate-600">
@@ -351,7 +351,7 @@ export const RoommateMessengerModal: React.FC<RoommateMessengerModalProps> = ({
                 </div>
               )}
               {onOpenSendNotification && (
-                <button onClick={onOpenSendNotification} className="md:hidden p-1.5 rounded-xl bg-slate-100 text-slate-700 cursor-pointer border border-slate-200">
+                <button onClick={onOpenSendNotification} className="lg:hidden p-1.5 rounded-xl bg-slate-100 text-slate-700 cursor-pointer border border-slate-200">
                   <Bell className="w-4 h-4" />
                 </button>
               )}

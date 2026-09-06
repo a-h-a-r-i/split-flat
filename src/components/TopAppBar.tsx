@@ -57,20 +57,20 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 w-full z-40 bg-white border-b border-slate-200/80 shadow-sm">
-      <div className="h-[60px] md:h-[64px] max-w-[1280px] mx-auto px-3 md:px-6 flex items-center gap-2 md:gap-4">
+      <div className="h-[60px] lg:h-[64px] max-w-[1280px] mx-auto px-3 lg:px-6 flex items-center gap-2 lg:gap-4">
 
         {/* ── LEFT: Brand + flat switcher ── */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Logo dot + name */}
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-teal-600 ring-2 ring-teal-100 shrink-0" />
-            <span className="text-[15px] md:text-[17px] font-black text-slate-900 tracking-tight">EquityHub</span>
+            <span className="text-[15px] lg:text-[17px] font-black text-slate-900 tracking-tight">EquityHub</span>
           </div>
 
           {/* Flat switcher pill */}
           <button
             onClick={onOpenSwitchFlat}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 transition-colors cursor-pointer max-w-[90px] md:max-w-[140px]"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 transition-colors cursor-pointer max-w-[90px] lg:max-w-[140px]"
           >
             <Building className="w-3 h-3 shrink-0 text-teal-600" />
             <span className="truncate">{groupName}</span>
@@ -80,7 +80,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
         {/* ── CENTER: Desktop nav tabs (hidden on mobile) ── */}
         {onTabChange && (
-          <nav className="hidden md:flex flex-1 items-center justify-center gap-0.5 bg-slate-100 p-1 rounded-xl border border-slate-200/70 mx-2">
+          <nav className="hidden lg:flex flex-1 items-center justify-center gap-0.5 bg-slate-100 p-1 rounded-xl border border-slate-200/70 mx-2">
             {([
               { id: 'expenses', icon: Receipt,         label: 'Ledger'          },
               { id: 'home',     icon: LayoutDashboard, label: 'Dashboard'       },
@@ -103,22 +103,22 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
         )}
 
         {/* Spacer on mobile to push right icons to the right */}
-        <div className="flex-1 md:hidden" />
+        <div className="flex-1 lg:hidden" />
 
         {/* ── RIGHT: action icons ── */}
-        <div className="flex items-center gap-1 md:gap-2 shrink-0">
+        <div className="flex items-center gap-1 lg:gap-2 shrink-0">
 
           {/* Invite — host/co-host desktop only */}
           {isHostOrCoHost && onOpenInvite && (
             <button onClick={onOpenInvite}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[12px] font-semibold transition-all cursor-pointer">
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[12px] font-semibold transition-all cursor-pointer">
               <UserPlus className="w-3.5 h-3.5" /> Invite
             </button>
           )}
 
           {/* Profile — desktop shows full pill, mobile shows avatar only */}
           <button onClick={onOpenProfile}
-            className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer group transition-all">
+            className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer group transition-all">
             <div className="w-6 h-6 rounded-full overflow-hidden border border-slate-300 shrink-0"
               onClick={(e) => { if (onOpenProfilePhoto) { e.stopPropagation(); onOpenProfilePhoto(); } }}>
               <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover"
@@ -131,7 +131,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
           {/* Mobile avatar */}
           <button onClick={onOpenProfile}
-            className="md:hidden flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 cursor-pointer active:scale-95">
+            className="lg:hidden flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 cursor-pointer active:scale-95">
             <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-300 shrink-0"
               onClick={(e) => { if (onOpenProfilePhoto) { e.stopPropagation(); onOpenProfilePhoto(); } }}>
               <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover"

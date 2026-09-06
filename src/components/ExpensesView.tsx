@@ -171,7 +171,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-[1280px] mx-auto pt-3 md:pt-4">
+    <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-[1280px] mx-auto pt-3 lg:pt-4">
       {/* 1. Host Approval Alert Banner (If items are awaiting review) */}
       {pendingApprovalList.length > 0 && (
         <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-xs">

@@ -196,7 +196,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-[1280px] mx-auto pt-3 md:pt-4">
+    <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-[1280px] mx-auto pt-3 lg:pt-4">
       {/* 0. Top Category Segment Filters */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 bg-white p-2 rounded-2xl border border-slate-200/80 shadow-2xs">
         <button
@@ -266,7 +266,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
       {/* 1. FEATURED ACTIONS HERO BANNER (Messenger & Broadcast Notifications) */}
       {(activeMenuTab === 'all' || activeMenuTab === 'messenger') && (
-        <div className={`grid grid-cols-1 ${isHostOrCoHost ? 'md:grid-cols-2' : ''} gap-4`}>
+        <div className={`grid grid-cols-1 ${isHostOrCoHost ? 'lg:grid-cols-2' : ''} gap-4`}>
           {/* Roommate Messenger Card */}
           <div className="p-5 sm:p-6 rounded-3xl bg-slate-900 text-white shadow-sm border border-slate-800 flex flex-col justify-between space-y-4">
             <div className="space-y-2">
@@ -474,7 +474,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
             <h4 className="text-[13px] font-bold text-amber-950 flex items-center gap-2">
               <Shield className="w-4 h-4 text-amber-700" /> Member Role Controls (Host & Co-Host Action)
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
               {users.map((u) => (
                 <div
                   key={u.id}
