@@ -1,35 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  X, 
-  User as UserIcon, 
-  Crown, 
-  Shield, 
-  Users, 
-  Mail, 
-  Phone, 
-  QrCode, 
-  Check, 
-  Key, 
-  Send,
-  Edit3,
-  Building,
-  ChevronRight,
-  Plus,
-  Wallet,
-  LogOut,
-  Clock,
-  ArrowUpRight,
-  Camera,
-  Upload,
-  Image as ImageIcon,
-  MessageSquare,
-  Sparkles,
-  Copy,
-  ArrowRightLeft,
-  Circle
+  X, User as UserIcon, Crown, Shield, Users, Mail, Phone, QrCode, Check, 
+  Send, Edit3, Building, Plus, Wallet, LogOut, Camera, Upload, MessageSquare,
+  Copy, ArrowRightLeft, Loader
 } from 'lucide-react';
 import { User, UserRole, RoomDeposit } from '../types';
 import { formatCurrency, formatExactCurrency } from '../utils/calculations';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -82,6 +59,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   
   // Profile edit fields
   const [name, setName] = useState('');
@@ -130,19 +109,33 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     .filter((d) => d.userId === activeUserToDisplay.id && d.status === 'pending_approval')
     .reduce((sum, d) => sum + d.amount, 0);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setAvatar(reader.result);
-          if (!isEditing) {
-            onUpdateProfile({ avatar: reader.result });
-          }
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image too large. Max 5MB allowed.');
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const url = await uploadImageToCloudinary(file, setUploadProgress);
+      setAvatar(url);
+      // Save immediately to DB — don't wait for form save
+      onUpdateProfile({ avatar: url });
+      setShowAvatarPicker(false);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Upload failed. Please check your Cloudinary preset is set to "Unsigned" and named "splitflat_avatars".');
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+      // Reset input so same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -420,12 +413,27 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs border border-indigo-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    disabled={uploading}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold text-[13px] border border-teal-200 flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-60"
                   >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload Photo from Device</span>
+                    {uploading ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        <span>Uploading {uploadProgress}%</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        <span>Upload Photo from Device</span>
+                      </>
+                    )}
                   </button>
                 </div>
+                {uploading && (
+                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-teal-600 h-full rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                  </div>
+                )}
 
                 {/* Preset Avatar Gallery */}
                 <div>
