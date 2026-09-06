@@ -590,7 +590,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                       />
                     </div>
                     <div>
-                      <h4 className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
+                      <h4 className="text-[14px] font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
                         {summary.name}
                         {getRoleBadge(summary.role)}
                         {summary.isCurrentUser && (
@@ -599,9 +599,14 @@ export const MoreView: React.FC<MoreViewProps> = ({
                           </span>
                         )}
                       </h4>
-                      <span className="text-[12px] font-mono text-slate-500">
-                        {summary.email} • Paid: {formatCurrency(summary.totalPaid)} • Share: {formatCurrency(summary.totalOwed)}
-                      </span>
+                      <p className="text-[11px] text-slate-500 truncate max-w-[180px]">
+                        {summary.email}
+                      </p>
+                      {(summary.totalPaid > 0 || summary.totalOwed > 0) && (
+                        <p className="text-[11px] font-mono text-slate-400 mt-0.5">
+                          Paid: {formatCurrency(summary.totalPaid)} · Share: {formatCurrency(summary.totalOwed)}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -634,18 +639,20 @@ export const MoreView: React.FC<MoreViewProps> = ({
               </h4>
               <div className="border border-slate-200 rounded-2xl bg-slate-50/60 divide-y divide-slate-200/60">
                 {invites.map((inv) => (
-                  <div key={inv.id} className="p-3.5 flex justify-between items-center text-[13px] bg-white">
-                    <div>
-                      <span className="font-bold text-slate-900">{inv.name}</span>
-                      <span className="ml-2 font-mono text-[11px] text-slate-500">({inv.email})</span>
-                      <span className="ml-2 font-mono text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200 font-semibold">
-                        {inv.role}
-                      </span>
+                  <div key={inv.id} className="p-3 flex items-center justify-between gap-2 bg-white">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-slate-900 text-[13px] truncate">{inv.name}</span>
+                        <span className="font-mono text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 font-semibold shrink-0">
+                          {inv.role}
+                        </span>
+                      </div>
+                      <p className="font-mono text-[11px] text-slate-500 truncate mt-0.5">{inv.email}</p>
                     </div>
                     {onRevokeInvite && (
                       <button
                         onClick={() => onRevokeInvite(inv.id)}
-                        className="text-slate-400 hover:text-rose-600 text-[11px] font-mono font-medium cursor-pointer"
+                        className="text-rose-600 hover:text-rose-800 text-[11px] font-semibold cursor-pointer shrink-0 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors"
                       >
                         Revoke
                       </button>

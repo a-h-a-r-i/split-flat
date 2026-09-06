@@ -244,19 +244,20 @@ export function calculateBalances(
     // If paid by a specific user (not room fund)
     if (exp.paidById !== 'room_fund') {
       paidMap[exp.paidById] = (paidMap[exp.paidById] || 0) + exp.amount;
-    }
 
-    if (exp.splitShares && exp.splitShares.length > 0) {
-      exp.splitShares.forEach((share) => {
-        owedMap[share.userId] = (owedMap[share.userId] || 0) + share.amount;
-      });
-    } else {
-      // Equal fallback
-      const sharePerUser = exp.amount / (users.length || 1);
-      users.forEach((u) => {
-        owedMap[u.id] = (owedMap[u.id] || 0) + sharePerUser;
-      });
+      // Only split personal expenses — room_fund expenses are handled by the pool
+      if (exp.splitShares && exp.splitShares.length > 0) {
+        exp.splitShares.forEach((share) => {
+          owedMap[share.userId] = (owedMap[share.userId] || 0) + share.amount;
+        });
+      } else {
+        const sharePerUser = exp.amount / (users.length || 1);
+        users.forEach((u) => {
+          owedMap[u.id] = (owedMap[u.id] || 0) + sharePerUser;
+        });
+      }
     }
+    // room_fund expenses do NOT affect personal netBalance — they're paid from the shared pool
   });
 
   // Tally settlements
