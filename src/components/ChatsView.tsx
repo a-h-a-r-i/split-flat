@@ -141,11 +141,12 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   // Consider a user truly online only if isOnline=true AND lastSeen is recent (within 5 min)
   const isTrulyOnline = (u: { isOnline?: boolean; lastSeen?: string }) => {
     if (!u.isOnline) return false;
-    if (!u.lastSeen) return true; // no lastSeen means currently active
-    // If lastSeen is an ISO string, check recency
+    if (!u.lastSeen) return true; // no lastSeen at all = currently active session
+    // Only trust ISO date strings (stored by new presence code)
+    // Old format was "09:00 AM" — not a valid date, so NaN
     const ts = new Date(u.lastSeen).getTime();
-    if (!isNaN(ts)) return Date.now() - ts < 5 * 60 * 1000;
-    return true; // legacy time string format — assume online
+    if (isNaN(ts)) return false; // old format = stale, treat as offline
+    return Date.now() - ts < 5 * 60 * 1000; // online if seen within 5 minutes
   };
 
   const onlineCount = useMemo(() => users.filter(isTrulyOnline).length, [users]);

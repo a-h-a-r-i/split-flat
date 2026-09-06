@@ -84,6 +84,7 @@ import {
   saveSettlementToDB,
   saveUserToDB,
   updateUserInDB,
+  deleteUserFromDB,
   saveInviteToDB,
   saveNotificationToDB,
   saveFlatToDB,
@@ -269,10 +270,12 @@ function AppInner() {
       if (freshUsers.length > 0) {
         const latestId = activeUserIdRef.current || getStoredAuthUserId();
         setUsers(
-          freshUsers.map((u) => ({
-            ...u,
-            isCurrentUser: latestId ? u.id === latestId : false,
-          }))
+          freshUsers
+            .filter((u) => u.status !== 'removed') // exclude permanently removed members
+            .map((u) => ({
+              ...u,
+              isCurrentUser: latestId ? u.id === latestId : false,
+            }))
         );
       }
     });
@@ -714,9 +717,9 @@ function AppInner() {
   const handleRemoveMember = (userId: string) => {
     const target = users.find((u) => u.id === userId);
     if (!target) return;
-    // Remove from local state
+    // Remove from local state immediately
     setUsers((prev) => prev.filter((u) => u.id !== userId));
-    // Remove email from flat's memberEmails
+    // Remove email from flat's memberEmails in Firestore
     if (activeFlat) {
       const updatedEmails = (activeFlat.memberEmails || []).filter(
         (e: string) => e.toLowerCase() !== target.email.toLowerCase()
@@ -728,14 +731,14 @@ function AppInner() {
         prev.map((f) => f.id === activeFlat.id ? { ...f, memberEmails: updatedEmails } : f)
       );
     }
-    // Mark user as removed in DB
-    updateUserInDB(userId, { status: 'removed' }).catch((err) =>
-      console.error('Remove user DB error:', err)
+    // Permanently delete the user document from Firestore
+    deleteUserFromDB(userId).catch((err) =>
+      console.error('Delete user DB error:', err)
     );
     const notif: AppNotification = {
       id: `notif-remove-${Date.now()}`,
       title: 'Member Removed',
-      message: `${target.name} has been removed from the flat by Host.`,
+      message: `${target.name} has been permanently removed from the flat.`,
       timestamp: 'Just now',
       isRead: false,
       type: 'general',

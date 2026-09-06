@@ -286,6 +286,10 @@ export async function updateUserInDB(userId: string, data: Partial<User>) {
   await updateDoc(doc(db, USERS_COLLECTION, userId), clean);
 }
 
+export async function deleteUserFromDB(userId: string) {
+  await deleteDoc(doc(db, USERS_COLLECTION, userId));
+}
+
 // Invites
 export async function saveInviteToDB(invite: MemberInvite) {
   await setDoc(doc(db, INVITES_COLLECTION, invite.id), invite);

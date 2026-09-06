@@ -266,28 +266,23 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </button>
       )}
 
-      {/* ── Personal Balance ── */}
+      {/* ── Balance cards ── */}
       <div className="grid grid-cols-2 gap-3">
         <div className="app-card p-4 rounded-2xl">
-          <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">My Balance</p>
-          <p className={`text-[22px] font-bold font-mono-numbers mt-1 ${isNegative ? 'text-rose-600' : isPositive ? 'text-teal-700' : 'text-slate-700'}`}>
-            {isPositive ? `+${formatExactCurrency(currentSummary.netBalance)}` : formatExactCurrency(currentSummary.netBalance)}
+          <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Room Balance</p>
+          <p className={`text-[20px] font-bold font-mono-numbers mt-1 ${myRoomBal.availableRoomBalance < 0 ? 'text-rose-600' : 'text-teal-700'}`}>
+            {formatCurrency(myRoomBal.availableRoomBalance)}
           </p>
-          <span className={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-            isPositive ? 'bg-teal-50 text-teal-700 border border-teal-200'
-            : isNegative ? 'bg-rose-50 text-rose-700 border border-rose-200'
-            : 'bg-slate-100 text-slate-600 border border-slate-200'
-          }`}>
-            {isPositive ? <ArrowUpRight className="w-3 h-3" /> : isNegative ? <ArrowDownLeft className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-            {isPositive ? 'Owed to you' : isNegative ? 'You owe' : 'Settled'}
-          </span>
+          <p className="text-[10px] text-slate-400 mt-1">
+            Paid: {formatCurrency(myRoomBal.depositedApproved)} · Used: {formatCurrency(myRoomBal.spentShare)}
+          </p>
         </div>
         <div className="app-card p-4 rounded-2xl">
           <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Group Spend</p>
-          <p className="text-[22px] font-bold font-mono-numbers text-slate-900 mt-1">{formatCurrency(totalGroupSpending)}</p>
-          <div className="mt-1.5 space-y-0.5">
-            <p className="text-[10px] text-slate-400 font-mono">You paid: {formatCurrency(currentSummary.totalPaid)}</p>
-            <p className="text-[10px] text-slate-400 font-mono">Your share: {formatCurrency(currentSummary.totalOwed)}</p>
+          <p className="text-[20px] font-bold font-mono-numbers text-slate-900 mt-1">{formatCurrency(totalGroupSpending)}</p>
+          <div className="mt-1 space-y-0.5">
+            <p className="text-[10px] text-slate-400 font-mono">Net: {isPositive ? '+' : ''}{formatExactCurrency(currentSummary.netBalance)}</p>
+            <p className="text-[10px] text-slate-400 font-mono">Share: {formatCurrency(currentSummary.totalOwed)}</p>
           </div>
         </div>
       </div>
