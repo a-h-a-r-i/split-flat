@@ -12,7 +12,7 @@
  */
 
 const CLOUD_NAME = 'diiii2qat';
-const UPLOAD_PRESET = 'splitflat_avatars';
+const UPLOAD_PRESET = 'spilfit_atavars';
 
 export async function uploadImageToCloudinary(
   file: File,
