@@ -83,7 +83,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
   onOpenSetCollectionModal,
   onRevokeInvite,
 }) => {
-  const [activeMenuTab, setActiveMenuTab] = useState<'all' | 'host_hub' | 'messenger' | 'settlements' | 'members'>('all');
+  const [activeMenuTab, setActiveMenuTab] = useState<'all' | 'host_hub' | 'settlements' | 'members'>('all');
   const [showSettleModal, setShowSettleModal] = useState(false);
   const [fromUser, setFromUser] = useState(users[1]?.id || 'u2');
   const [toUser, setToUser] = useState(users[0]?.id || 'u1');
@@ -228,18 +228,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
         )}
 
         <button
-          onClick={() => setActiveMenuTab('messenger')}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-            activeMenuTab === 'messenger'
-              ? 'bg-slate-900 text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <MessageSquare className="w-3.5 h-3.5" />
-          Roommate Messenger
-        </button>
-
-        <button
           onClick={() => setActiveMenuTab('settlements')}
           className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
             activeMenuTab === 'settlements'
@@ -263,77 +251,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
           Roommates & Roles
         </button>
       </div>
-
-      {/* 1. FEATURED ACTIONS HERO BANNER (Messenger & Broadcast Notifications) */}
-      {(activeMenuTab === 'all' || activeMenuTab === 'messenger') && (
-        <div className={`grid grid-cols-1 ${isHostOrCoHost ? 'lg:grid-cols-2' : ''} gap-4`}>
-          {/* Roommate Messenger Card */}
-          <div className="p-5 sm:p-6 rounded-3xl bg-slate-900 text-white shadow-sm border border-slate-800 flex flex-col justify-between space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-emerald-400 border border-white/10">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Roommate Chat
-                </span>
-                <span className="text-[11px] font-mono text-slate-400">
-                  Flat 402 Channel
-                </span>
-              </div>
-              <h3 className="text-[18px] sm:text-[20px] font-bold text-white leading-tight">
-                Roommate Messenger
-              </h3>
-              <p className="text-[13px] text-slate-300">
-                Send group messages to all flatmates or start direct 1-on-1 private chats with instant UPI payment & room fund nudges.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 pt-2">
-              {onOpenMessenger && (
-                <button
-                  onClick={onOpenMessenger}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-bold text-[13px] transition-all active:scale-95 cursor-pointer shadow-xs"
-                >
-                  <MessageSquare className="w-4 h-4" /> Open Group & Direct Chats
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Send Push Notification Card - ONLY for Host & Co-Host */}
-          {isHostOrCoHost && (
-            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-200/80 bg-white shadow-xs flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-900 border border-amber-200">
-                    <Bell className="w-3.5 h-3.5 text-amber-700" />
-                    Broadcast Center
-                  </span>
-                  <span className="text-[11px] font-mono text-slate-500">
-                    {users.length} flatmates reachable
-                  </span>
-                </div>
-                <h3 className="text-[18px] sm:text-[20px] font-bold text-slate-900 leading-tight">
-                  Send Notification to Roommates
-                </h3>
-                <p className="text-[13px] text-slate-600">
-                  Broadcast instant push alerts, deficit reminders, utility bill deadlines, or house maintenance notices to everyone.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                {onOpenSendNotification && (
-                  <button
-                    onClick={onOpenSendNotification}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[13px] transition-all active:scale-95 cursor-pointer shadow-xs border border-slate-800"
-                  >
-                    <Send className="w-4 h-4" /> Send Push Notification
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* 2. DEDICATED HOST & CO-HOST CONTROLS PANEL - ONLY for Host & Co-Host */}
       {isHostOrCoHost && (activeMenuTab === 'all' || activeMenuTab === 'host_hub') && (

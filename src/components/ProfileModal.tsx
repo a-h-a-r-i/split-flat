@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { User, UserRole, RoomDeposit } from '../types';
 import { formatCurrency, formatExactCurrency } from '../utils/calculations';
-import { uploadImageToCloudinary } from '../utils/cloudinary';
+import { uploadImageToCloudinary, fileToDataUrl } from '../utils/cloudinary';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -113,9 +113,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image too large. Max 5MB allowed.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image too large. Max 10MB allowed.');
       return;
     }
 
@@ -123,18 +122,25 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     setUploadProgress(0);
 
     try {
+      // Try Cloudinary first
       const url = await uploadImageToCloudinary(file, setUploadProgress);
       setAvatar(url);
-      // Save immediately to DB — don't wait for form save
       onUpdateProfile({ avatar: url });
       setShowAvatarPicker(false);
-    } catch (err) {
-      console.error('Upload failed:', err);
-      alert('Upload failed. Please check your Cloudinary preset is set to "Unsigned" and named "splitflat_avatars".');
+    } catch (err: any) {
+      console.warn('Cloudinary upload failed, falling back to base64:', err.message);
+      // Fallback to base64 (works without Cloudinary setup)
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        setAvatar(dataUrl);
+        onUpdateProfile({ avatar: dataUrl });
+        setShowAvatarPicker(false);
+      } catch {
+        alert('Failed to upload image. Please try again.');
+      }
     } finally {
       setUploading(false);
       setUploadProgress(0);
-      // Reset input so same file can be re-selected
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };

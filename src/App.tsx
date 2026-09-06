@@ -1243,18 +1243,6 @@ function AppInner() {
           ? 'px-0 sm:px-4 lg:px-6 pt-[60px] lg:pt-[64px] pb-[72px] lg:pb-0 overflow-hidden'
           : 'px-3 sm:px-5 lg:px-6 pt-[60px] lg:pt-[64px] pb-[88px] lg:pb-6 overflow-y-auto'
       }`}>
-        {/* Top Room Balance Bar: Rendered only on Home tab */}
-        {activeTab === 'home' && (
-          <TopRoomBalanceBar
-            roomFundSummary={roomFundSummary}
-            currentUser={currentUser}
-            activeUsersCount={users.length}
-            onOpenDepositModal={() => setIsDepositModalOpen(true)}
-            onRequestContribution={handleRequestPoolContribution}
-            onNavigateToDashboard={() => setActiveTab('home')}
-          />
-        )}
-
         {activeTab === 'expenses' && (
           <ExpensesView
             expenses={expenses}
