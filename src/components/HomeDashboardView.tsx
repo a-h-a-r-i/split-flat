@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Plus, ArrowUpRight, ArrowDownLeft, CheckCircle2,
   Clock, Wallet, Check, ArrowRightLeft, MessageSquare,
-  TrendingUp, Receipt, Settings, UserCheck, AlertCircle
+  TrendingUp, Receipt, Settings
 } from 'lucide-react';
 import { User, Expense, Bill, RoomDeposit } from '../types';
 import {
@@ -133,20 +133,19 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <p className="text-white text-[16px] font-bold font-mono-numbers mt-0.5">
                 {formatCurrency(myContribution.approved)}
                 {myContribution.pending > 0 && (
-                  <span className="text-amber-300 text-[12px] ml-2">+ {formatCurrency(myContribution.pending)} pending</span>
+                  <span className="text-amber-300 text-[12px] ml-2">+{formatCurrency(myContribution.pending)} pending</span>
                 )}
               </p>
             </div>
-            {targetPerPerson > 0 && (
-              <div className="text-right">
-                <p className="text-teal-200 text-[10px] font-semibold uppercase">Remaining</p>
-                {myRemaining > 0 ? (
-                  <p className="text-rose-300 text-[16px] font-bold font-mono-numbers mt-0.5">-{formatCurrency(myRemaining)}</p>
-                ) : (
-                  <p className="text-emerald-300 text-[14px] font-bold mt-0.5">✓ Done</p>
-                )}
-              </div>
-            )}
+            <div className="text-right">
+              <p className="text-teal-200 text-[10px] font-semibold uppercase">Your Balance</p>
+              <p className={`text-[16px] font-bold font-mono-numbers mt-0.5 ${myRoomBal.availableRoomBalance < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
+                {formatCurrency(myRoomBal.availableRoomBalance)}
+              </p>
+              <p className="text-teal-300 text-[10px] mt-0.5">
+                -{formatCurrency(myRoomBal.spentShare)} spent share
+              </p>
+            </div>
           </div>
           {targetPerPerson > 0 && (
             <div className="mt-2">
@@ -157,7 +156,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 />
               </div>
               <p className="text-teal-300 text-[10px] mt-1">
-                Target: {formatCurrency(targetPerPerson)}/person
+                Target: {formatCurrency(targetPerPerson)}/person · {myRemaining > 0 ? `${formatCurrency(myRemaining)} remaining` : '✓ Goal met'}
               </p>
             </div>
           )}
@@ -198,11 +197,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           <div className="space-y-2">
             {users.map((u) => {
               const contrib = roomFundSummary.userContributions[u.id] || { approved: 0, pending: 0 };
+              const roomBal = roomFundSummary.userRoomBalances[u.id];
               const deposited = contrib.approved;
               const pending = contrib.pending;
-              const remaining = Math.max(0, targetPerPerson - deposited);
-              const pct = Math.min(100, Math.round((deposited / targetPerPerson) * 100));
-              const done = deposited >= targetPerPerson;
+              const spentShare = roomBal?.spentShare || 0;
+              const availableBalance = roomBal?.availableRoomBalance ?? (deposited - spentShare);
+              const remaining = targetPerPerson > 0 ? Math.max(0, targetPerPerson - deposited) : 0;
+              const pct = targetPerPerson > 0 ? Math.min(100, Math.round((deposited / targetPerPerson) * 100)) : 0;
+              const done = targetPerPerson > 0 && deposited >= targetPerPerson;
 
               return (
                 <div key={u.id} className="flex items-center gap-3">
@@ -211,30 +213,39 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                       onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=0f766e&color=fff`; }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-0.5">
                       <p className="text-[12px] font-semibold text-slate-900 truncate">{u.name}</p>
-                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        {done ? (
-                          <span className="text-[11px] font-bold text-teal-700 flex items-center gap-0.5">
-                            <UserCheck className="w-3 h-3" /> {formatCurrency(deposited)}
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        {deposited > 0 ? (
+                          <span className="text-[11px] font-semibold text-teal-700">
+                            {formatCurrency(deposited)}
                           </span>
                         ) : (
-                          <>
-                            <span className="text-[11px] font-semibold text-teal-700">{formatCurrency(deposited)}</span>
-                            <span className="text-[10px] text-rose-500 font-mono">-{formatCurrency(remaining)}</span>
-                          </>
+                          <span className="text-[11px] text-slate-400">₹0</span>
+                        )}
+                        {remaining > 0 && (
+                          <span className="text-[10px] text-rose-500 font-mono font-semibold">
+                            -{formatCurrency(remaining)}
+                          </span>
+                        )}
+                        {done && spentShare > 0 && (
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            = {formatCurrency(availableBalance)}
+                          </span>
                         )}
                         {pending > 0 && (
-                          <span className="text-[10px] text-amber-600 font-semibold">+{formatCurrency(pending)} pending</span>
+                          <span className="text-[10px] text-amber-600 font-semibold">+{formatCurrency(pending)}⏳</span>
                         )}
                       </div>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${done ? 'bg-teal-600' : 'bg-teal-400'}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                    {targetPerPerson > 0 && (
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${done ? 'bg-teal-600' : 'bg-teal-400'}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               );
