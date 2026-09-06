@@ -48,6 +48,7 @@ interface MoreViewProps {
   unreadMessagesCount?: number;
   onAddUser: (user: Partial<User>) => void;
   onUpdateUserRole?: (userId: string, newRole: UserRole) => void;
+  onRemoveMember?: (userId: string) => void;
   onRecordSettlement: (settlement: Partial<SettlementRecord>) => void;
   onDeleteSettlement?: (id: string) => void;
   onOpenInviteModal?: () => void;
@@ -72,6 +73,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
   unreadMessagesCount = 0,
   onAddUser,
   onUpdateUserRole,
+  onRemoveMember,
   onRecordSettlement,
   onDeleteSettlement,
   onOpenInviteModal,
@@ -196,10 +198,10 @@ export const MoreView: React.FC<MoreViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-[1280px] mx-auto pt-3 pb-4">
+    <div className="flex flex-col gap-4 w-full max-w-[1280px] mx-auto pt-3 pb-4 px-1">
       {/* 0. Top Category Segment Filters — sticky so they stay visible while scrolling */}
-      <div className="sticky top-0 z-10 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-[#eef2f0] pt-2 pb-2">
-        <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-sm w-full min-w-max">
+      <div className="sticky top-0 z-10 overflow-x-auto no-scrollbar bg-[#eef2f0] pt-1 pb-2 -mx-1 px-1">
+        <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-sm w-max min-w-full">
         <button
           onClick={() => setActiveMenuTab('all')}
           className={`px-3.5 py-1.5 rounded-xl text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
@@ -408,7 +410,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   </div>
 
                   {onUpdateUserRole && isHost && u.id !== currentUser.id && (
-                    <div className="flex items-center gap-1 pt-1">
+                    <div className="flex flex-col gap-1 pt-1">
                       {u.role === 'member' && (
                         <button
                           onClick={() => onUpdateUserRole(u.id, 'co-host')}
@@ -423,6 +425,18 @@ export const MoreView: React.FC<MoreViewProps> = ({
                           className="w-full py-1 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
                         >
                           Demote to Member
+                        </button>
+                      )}
+                      {onRemoveMember && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Remove ${u.name} from the flat? This cannot be undone.`)) {
+                              onRemoveMember(u.id);
+                            }
+                          }}
+                          className="w-full py-1 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                        >
+                          🚫 Remove from Flat
                         </button>
                       )}
                     </div>

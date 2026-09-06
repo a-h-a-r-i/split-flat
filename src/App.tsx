@@ -199,23 +199,39 @@ function AppInner() {
   useEffect(() => {
     if (!currentUser?.id || !isAuthenticated) return;
     updateUserPresenceInDB(currentUser.id, { isOnline: true });
+
+    const markOffline = () => {
+      updateUserPresenceInDB(currentUser.id, {
+        isOnline: false,
+        lastSeen: new Date().toISOString(),
+      });
+    };
+
     const handleVisibility = () => {
       if (document.visibilityState === 'hidden') {
-        updateUserPresenceInDB(currentUser.id, {
-          isOnline: false,
-          lastSeen: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        });
+        markOffline();
       } else {
         updateUserPresenceInDB(currentUser.id, { isOnline: true });
       }
     };
+
     document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('beforeunload', markOffline);
+    window.addEventListener('pagehide', markOffline);
+
+    // Heartbeat — update presence every 2 minutes while tab is open
+    const heartbeat = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        updateUserPresenceInDB(currentUser.id, { isOnline: true });
+      }
+    }, 2 * 60 * 1000);
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
-      updateUserPresenceInDB(currentUser.id, {
-        isOnline: false,
-        lastSeen: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      });
+      window.removeEventListener('beforeunload', markOffline);
+      window.removeEventListener('pagehide', markOffline);
+      clearInterval(heartbeat);
+      markOffline();
     };
   }, [currentUser?.id, isAuthenticated]);
 
@@ -687,6 +703,39 @@ function AppInner() {
       id: `notif-role-${Date.now()}`,
       title: 'Roommate Role Updated',
       message: `${targetUser?.name || 'Member'} is now assigned as ${newRole.toUpperCase()} in Flat 402.`,
+      timestamp: 'Just now',
+      isRead: false,
+      type: 'general',
+    };
+    setNotifications((prev) => [notif, ...prev]);
+    saveNotificationToDB(notif).catch((err) => console.error('Save notif DB error:', err));
+  };
+
+  const handleRemoveMember = (userId: string) => {
+    const target = users.find((u) => u.id === userId);
+    if (!target) return;
+    // Remove from local state
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
+    // Remove email from flat's memberEmails
+    if (activeFlat) {
+      const updatedEmails = (activeFlat.memberEmails || []).filter(
+        (e: string) => e.toLowerCase() !== target.email.toLowerCase()
+      );
+      updateFlatInDB(activeFlat.id, { memberEmails: updatedEmails }).catch((err) =>
+        console.error('Remove member from flat error:', err)
+      );
+      setFlats((prev) =>
+        prev.map((f) => f.id === activeFlat.id ? { ...f, memberEmails: updatedEmails } : f)
+      );
+    }
+    // Mark user as removed in DB
+    updateUserInDB(userId, { status: 'removed' }).catch((err) =>
+      console.error('Remove user DB error:', err)
+    );
+    const notif: AppNotification = {
+      id: `notif-remove-${Date.now()}`,
+      title: 'Member Removed',
+      message: `${target.name} has been removed from the flat by Host.`,
       timestamp: 'Just now',
       isRead: false,
       type: 'general',
@@ -1342,6 +1391,7 @@ function AppInner() {
             onOpenDepositModal={() => setIsDepositModalOpen(true)}
             onOpenNotifications={() => setIsNotificationsOpen(true)}
             onUpdateUserRole={handleUpdateUserRole}
+            onRemoveMember={handleRemoveMember}
             onRevokeInvite={handleRevokeInvite}
           />
         )}

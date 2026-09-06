@@ -138,13 +138,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </p>
             </div>
             <div className="text-right">
-              <p className="text-teal-200 text-[10px] font-semibold uppercase">Your Balance</p>
+              <p className="text-teal-200 text-[10px] font-semibold uppercase">Your Available</p>
               <p className={`text-[16px] font-bold font-mono-numbers mt-0.5 ${myRoomBal.availableRoomBalance < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
                 {formatCurrency(myRoomBal.availableRoomBalance)}
               </p>
-              <p className="text-teal-300 text-[10px] mt-0.5">
-                -{formatCurrency(myRoomBal.spentShare)} spent share
-              </p>
+              {myRoomBal.spentShare > 0 && (
+                <p className="text-teal-300 text-[10px] mt-0.5">-{formatCurrency(myRoomBal.spentShare)} spent</p>
+              )}
             </div>
           </div>
           {targetPerPerson > 0 && (

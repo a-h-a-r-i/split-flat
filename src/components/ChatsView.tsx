@@ -137,7 +137,18 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
   const grouped = useMemo(() => groupMessages(displayMsgs), [displayMsgs]);
 
   const activeChatUser = users.find((u) => u.id === activeRecipientId);
-  const onlineCount    = useMemo(() => users.filter((u) => u.isOnline).length, [users]);
+
+  // Consider a user truly online only if isOnline=true AND lastSeen is recent (within 5 min)
+  const isTrulyOnline = (u: { isOnline?: boolean; lastSeen?: string }) => {
+    if (!u.isOnline) return false;
+    if (!u.lastSeen) return true; // no lastSeen means currently active
+    // If lastSeen is an ISO string, check recency
+    const ts = new Date(u.lastSeen).getTime();
+    if (!isNaN(ts)) return Date.now() - ts < 5 * 60 * 1000;
+    return true; // legacy time string format — assume online
+  };
+
+  const onlineCount = useMemo(() => users.filter(isTrulyOnline).length, [users]);
 
   // Who is typing in the current thread
   const whoIsTyping = useMemo(() =>
@@ -378,7 +389,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'; }} />
                 </div>
-                <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${user.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isTrulyOnline(user) ? 'bg-emerald-500' : 'bg-slate-300'}`} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
@@ -434,7 +445,7 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
                   onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'; }} />
               </div>}
           {activeRecipientId !== 'group' && (
-            <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${activeChatUser?.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+            <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${activeChatUser && isTrulyOnline(activeChatUser) ? 'bg-emerald-500' : 'bg-slate-300'}`} />
           )}
         </button>
 
@@ -448,9 +459,9 @@ export const ChatsView: React.FC<ChatsViewProps> = ({
               ? <span className="text-slate-500">{users.length} members • {onlineCount} online</span>
               : whoIsTyping && whoIsTyping.id === activeChatUser?.id
                 ? <span className="text-emerald-600 font-semibold">typing…</span>
-                : activeChatUser?.isOnline
+                : activeChatUser && isTrulyOnline(activeChatUser)
                   ? <span className="text-emerald-600 font-medium">Online</span>
-                  : <span className="text-slate-400">{activeChatUser?.lastSeen ? `Last seen ${activeChatUser.lastSeen}` : 'Offline'}</span>}
+                  : <span className="text-slate-400">{activeChatUser?.lastSeen ? `Last seen ${new Date(activeChatUser.lastSeen).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}` : 'Offline'}</span>}
           </p>
         </button>
 
