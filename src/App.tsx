@@ -1221,7 +1221,7 @@ function AppInner() {
   }
 
   return (
-    <div className="h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-slate-900 selection:text-white overflow-hidden">
+    <div className="h-[100dvh] bg-[#eef2f0] text-slate-900 flex flex-col font-sans selection:bg-slate-900 selection:text-white overflow-hidden fixed inset-0">
       {/* Top Application Bar */}
       <TopAppBar
         currentUser={currentUser}
@@ -1238,9 +1238,9 @@ function AppInner() {
       />
 
       {/* Main Content Canvas */}
-      <main className={`flex-1 min-h-0 flex flex-col w-full max-w-[1280px] mx-auto ${
+      <main className={`flex-1 min-h-0 w-full max-w-[1280px] mx-auto ${
         activeTab === 'chats'
-          ? 'px-0 sm:px-4 lg:px-6 pt-[60px] lg:pt-[64px] pb-[72px] lg:pb-0 overflow-hidden'
+          ? 'px-0 sm:px-4 lg:px-6 pt-[60px] lg:pt-[64px] pb-[72px] lg:pb-0 overflow-hidden flex flex-col'
           : 'px-3 sm:px-5 lg:px-6 pt-[60px] lg:pt-[64px] pb-[88px] lg:pb-6 overflow-y-auto'
       }`}>
         {activeTab === 'expenses' && (

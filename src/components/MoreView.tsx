@@ -196,9 +196,10 @@ export const MoreView: React.FC<MoreViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-[1280px] mx-auto pt-3 lg:pt-4">
-      {/* 0. Top Category Segment Filters */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 bg-white p-2 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <div className="flex flex-col gap-4 w-full max-w-[1280px] mx-auto pt-3 pb-4">
+      {/* 0. Top Category Segment Filters — sticky so they stay visible while scrolling */}
+      <div className="sticky top-0 z-10 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-[#eef2f0] pt-2 pb-2">
+        <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-sm w-full min-w-max">
         <button
           onClick={() => setActiveMenuTab('all')}
           className={`px-3.5 py-1.5 rounded-xl text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
@@ -250,6 +251,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
           <Users className="w-3.5 h-3.5" />
           Roommates & Roles
         </button>
+        </div>
       </div>
 
       {/* 2. DEDICATED HOST & CO-HOST CONTROLS PANEL - ONLY for Host & Co-Host */}
