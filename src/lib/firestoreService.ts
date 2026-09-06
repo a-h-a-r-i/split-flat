@@ -215,11 +215,17 @@ export async function updateUserPresenceInDB(userId: string, data: { isOnline?: 
 
 // Expenses
 export async function saveExpenseToDB(expense: Expense) {
-  await setDoc(doc(db, EXPENSES_COLLECTION, expense.id), expense);
+  const clean = Object.fromEntries(
+    Object.entries(expense).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(doc(db, EXPENSES_COLLECTION, expense.id), clean);
 }
 
 export async function updateExpenseInDB(expenseId: string, data: Partial<Expense>) {
-  await updateDoc(doc(db, EXPENSES_COLLECTION, expenseId), data);
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+  await updateDoc(doc(db, EXPENSES_COLLECTION, expenseId), clean);
 }
 
 export async function deleteExpenseFromDB(expenseId: string) {
@@ -228,34 +234,56 @@ export async function deleteExpenseFromDB(expenseId: string) {
 
 // Room Deposits
 export async function saveDepositToDB(deposit: RoomDeposit) {
-  await setDoc(doc(db, DEPOSITS_COLLECTION, deposit.id), deposit);
+  // Strip undefined fields — Firestore rejects them
+  const clean = Object.fromEntries(
+    Object.entries(deposit).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(doc(db, DEPOSITS_COLLECTION, deposit.id), clean);
 }
 
 export async function updateDepositInDB(depositId: string, data: Partial<RoomDeposit>) {
-  await updateDoc(doc(db, DEPOSITS_COLLECTION, depositId), data);
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+  await updateDoc(doc(db, DEPOSITS_COLLECTION, depositId), clean);
 }
 
 // Bills
 export async function saveBillToDB(bill: Bill) {
-  await setDoc(doc(db, BILLS_COLLECTION, bill.id), bill);
+  const clean = Object.fromEntries(
+    Object.entries(bill).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(doc(db, BILLS_COLLECTION, bill.id), clean);
 }
 
 export async function updateBillInDB(billId: string, data: Partial<Bill>) {
-  await updateDoc(doc(db, BILLS_COLLECTION, billId), data);
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+  await updateDoc(doc(db, BILLS_COLLECTION, billId), clean);
 }
 
 // Settlements
 export async function saveSettlementToDB(settlement: SettlementRecord) {
-  await setDoc(doc(db, SETTLEMENTS_COLLECTION, settlement.id), settlement);
+  const clean = Object.fromEntries(
+    Object.entries(settlement).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(doc(db, SETTLEMENTS_COLLECTION, settlement.id), clean);
 }
 
 // Users
 export async function saveUserToDB(user: User) {
-  await setDoc(doc(db, USERS_COLLECTION, user.id), user);
+  const clean = Object.fromEntries(
+    Object.entries(user).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(doc(db, USERS_COLLECTION, user.id), clean);
 }
 
 export async function updateUserInDB(userId: string, data: Partial<User>) {
-  await updateDoc(doc(db, USERS_COLLECTION, userId), data);
+  const clean = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+  await updateDoc(doc(db, USERS_COLLECTION, userId), clean);
 }
 
 // Invites

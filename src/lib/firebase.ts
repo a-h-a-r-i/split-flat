@@ -42,8 +42,8 @@ export async function signInWithGoogle(): Promise<{ email: string; name: string;
  * Tries email/password first, falls back to anonymous auth.
  */
 export async function ensureFirebaseAuthUser(email: string): Promise<void> {
-  // If already signed in, skip
-  if (auth.currentUser) return;
+  // If already signed in with a real user, skip
+  if (auth.currentUser && !auth.currentUser.isAnonymous) return;
 
   const password = `EH_${btoa(email).slice(0, 16)}_2024`;
 
@@ -62,6 +62,19 @@ export async function ensureFirebaseAuthUser(email: string): Promise<void> {
     await signInAnonymously(auth);
   } catch (err) {
     console.warn('Firebase auth failed:', err);
+  }
+}
+
+/**
+ * Ensure ANY Firebase Auth session exists (anonymous at minimum).
+ * Called on every app startup to guarantee Firestore writes work.
+ */
+export async function ensureAnyAuthSession(): Promise<void> {
+  if (auth.currentUser) return;
+  try {
+    await signInAnonymously(auth);
+  } catch (err) {
+    console.warn('Anonymous auth failed:', err);
   }
 }
 

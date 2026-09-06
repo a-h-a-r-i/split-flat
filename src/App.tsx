@@ -116,7 +116,7 @@ import {
   setStoredAuthSession, 
   clearStoredAuthSession 
 } from './utils/auth';
-import { signInWithGoogle, signOutFirebase, ensureFirebaseAuthUser } from './lib/firebase';
+import { signInWithGoogle, signOutFirebase, ensureFirebaseAuthUser, ensureAnyAuthSession } from './lib/firebase';
 import { 
   calculateBalances, 
   calculateSimplifiedDebts, 
@@ -125,7 +125,7 @@ import {
 } from './utils/calculations';
 
 function AppInner() {
-  // Flats state — all populated from Firestore
+  // Flats state ï¿½ all populated from Firestore
   const [flats, setFlats]           = useState<FlatGroup[]>([]);
   const [activeFlatId, setActiveFlatId] = useState<string>(() => {
     // Try to restore from session storage
@@ -138,12 +138,12 @@ function AppInner() {
   // Keep a ref of the active user ID so Firestore listeners always use latest value
   const activeUserIdRef = useRef<string | null>(getStoredAuthUserId());
 
-  // Auth state — restore from stored session if still valid (6-month persistence)
+  // Auth state ï¿½ restore from stored session if still valid (6-month persistence)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return getStoredAuthUserId() !== null;
   });
 
-  // All app state starts empty — populated by Firestore real-time subscriptions
+  // All app state starts empty ï¿½ populated by Firestore real-time subscriptions
   const [users, setUsers]             = useState<User[]>([]);
   const [expenses, setExpenses]       = useState<Expense[]>([]);
   const [deposits, setDeposits]       = useState<RoomDeposit[]>([]);
@@ -223,9 +223,14 @@ function AppInner() {
   useEffect(() => {
     seedInitialFirestoreData();
 
-    // Ensure Firebase Auth session exists so Firestore writes work
+    // Always ensure a Firebase Auth session on startup â€” anonymous at minimum
+    ensureAnyAuthSession().catch(() => {});
+
+    // Upgrade to email auth if we have a stored session
     const storedEmail = (() => { try { const s = localStorage.getItem('equityhub_auth_session'); return s ? JSON.parse(s).email : null; } catch { return null; } })();
-    ensureFirebaseAuthUser(storedEmail || 'anon@equityhub.app').catch(() => {});
+    if (storedEmail) {
+      ensureFirebaseAuthUser(storedEmail).catch(() => {});
+    }
 
     const storedId = getStoredAuthUserId();
 
@@ -495,7 +500,7 @@ function AppInner() {
     activeUserIdRef.current = userId;
     setStoredAuthSession(userId, normalizedEmail);
 
-    // Persist to Firestore in background — check for existing user first
+    // Persist to Firestore in background ï¿½ check for existing user first
     ensureFirebaseAuthUser(normalizedEmail).then(() => {
       saveFlatToDB(newFlat).catch((err) => console.error('Save flat DB error:', err));
       // Only save user if not already exists with same email
@@ -505,7 +510,7 @@ function AppInner() {
       saveUserToDB(newHostUser).catch((err) => console.error('Save user DB error:', err));
     });
 
-    // Authenticate last — by now local state is ready
+    // Authenticate last ï¿½ by now local state is ready
     setIsAuthenticated(true);
   };
 
@@ -543,11 +548,11 @@ function AppInner() {
       const result = handleLoginWithEmail(email, true);
       if (result.success) return { success: true, email };
       if (result.matchingFlats.length > 1) {
-        // Multiple flats — handled by LoginPage flat-selector
+        // Multiple flats ï¿½ handled by LoginPage flat-selector
         return { success: false, email, error: 'multiple_flats' };
       }
 
-      // Email not in any flat — provision new user shell and ask to create a flat
+      // Email not in any flat ï¿½ provision new user shell and ask to create a flat
       return { success: false, email, needsFlat: true };
     } catch (err: any) {
       console.error('Google sign-in error:', err);
@@ -704,7 +709,7 @@ function AppInner() {
       createdAt:    now.toISOString(),
       type:         msgData.type         || 'text',
       reactions:    msgData.reactions    || {},
-      // Only include amount/seenBy if defined — Firestore rejects undefined
+      // Only include amount/seenBy if defined ï¿½ Firestore rejects undefined
       ...(msgData.amount  !== undefined ? { amount:  msgData.amount  } : {}),
       ...(msgData.seenBy  !== undefined ? { seenBy:  msgData.seenBy  } : {}),
     };
